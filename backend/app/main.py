@@ -99,6 +99,17 @@ async def create_card_listing(
 def get_cards(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return crud.get_cards(db=db, skip=skip, limit=limit)
 
+@app.get("/store/card/{card_id}", response_model=schemas.CardRead)
+def get_card(card_id: int, db: Session = Depends(get_db)):
+    """
+    Fetch a single card based on its `card_id`.
+    """
+    card = crud.get_card(db=db, card_id=card_id)
+    if card is None:
+        raise HTTPException(status_code=404, detail="Card not found")
+    return card
+
+
 
 @app.put("/cards/{card_id}", response_model=schemas.CardRead)
 def update_card(card_id: int, card: schemas.CardCreate, db: Session = Depends(get_db)):

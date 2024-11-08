@@ -11,8 +11,22 @@ export const CartProvider = ({ children }) => {
     const [cartItems, setCartItems] = useState([]);
 
     // Function to add an item to the cart
-    const addToCart = (item) => {
-        setCartItems((prevItems) => [...prevItems, item]);
+    const addToCart = (itemToAdd) => {
+        setCartItems((prevItems) => {
+            const existingItem = prevItems.find(item => item.id === itemToAdd.id);
+
+            if (existingItem) {
+                // If the item already exists in the cart, update the quantity
+                return prevItems.map(item =>
+                    item.id === itemToAdd.id
+                        ? { ...item, quantity: item.quantity + itemToAdd.quantity }
+                        : item
+                );
+            } else {
+                // If it's a new item, add it to the cart
+                return [...prevItems, itemToAdd];
+            }
+        });
     };
 
     // Function to remove an item from the cart
@@ -20,14 +34,11 @@ export const CartProvider = ({ children }) => {
         setCartItems((prevItems) => prevItems.filter(item => item.id !== itemId));
     };
 
-    // Calculate the cart subtotal based on item prices and quantities
+    // Calculate the total based on the quantity and price of items
     const calculateTotal = () => {
-        return cartItems.reduce((total, item) => {
-            return total + (item.price * item.quantity);  // price * quantity per item type
-        }, 0).toFixed(2);  // Keep 2 decimal points
+        return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2);
     };
 
-    // The cart context value that will be accessible to all components
     return (
         <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, calculateTotal }}>
             {children}

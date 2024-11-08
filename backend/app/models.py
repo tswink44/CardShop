@@ -35,6 +35,7 @@ class User(BaseModel):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String) #store hashed password
     is_active = Column(Boolean, default=True)
+    is_admin = Column(Boolean, default=False)
     # Relationships
     orders = relationship("Order", back_populates="user")
     reviews = relationship("Review", back_populates="user")

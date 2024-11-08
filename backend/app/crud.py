@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
+
+from backend.app import models
 from backend.app.models import Card, User, Order, OrderItem, Review, UserReview
 from backend.app.schemas import CardCreate, UserCreate, OrderCreate, OrderItemCreate, ReviewCreate, UserReviewCreate
 from backend.app.utils import hash_password, verify_password
@@ -19,6 +21,9 @@ def create_card(db: Session, card: CardCreate, image_url: str):
     db.commit()
     db.refresh(db_card)
     return db_card
+
+def get_card(db: Session, card_id: int):
+    return db.query(models.Card).filter(models.Card.id == card_id).first()
 
 def get_cards(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Card).offset(skip).limit(limit).all()

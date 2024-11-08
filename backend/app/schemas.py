@@ -43,6 +43,10 @@ class UserBase(BaseModel):
     username: str
     email: EmailStr
     is_active: Optional[bool] = True
+    is_admin: bool = False
+
+    class Config:
+        orm_mode = True
 
 
 class UserCreate(UserBase):

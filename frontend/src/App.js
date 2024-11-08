@@ -10,6 +10,7 @@ import Profile from './components/Profile';
 import CartPage from './components/CartPage';  // Import CartPage
 import { CartProvider } from './components/CartContext';
 import CreateListing from "./components/CreateListing";
+import CardDetail from "./components/CardDetail";
 
 const App = () => {
     const [token, setToken] = useState(localStorage.getItem('token'));
@@ -35,6 +36,7 @@ const App = () => {
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/create-listing" element={<CreateListing />} />
                         <Route path="/cart" element={<CartPage />} />
+                        <Route path="/card/:id" element={<CardDetail />} />
                     </Routes>
                 </div>
             </Router>
