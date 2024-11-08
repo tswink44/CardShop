@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from app.database import Base
+from backend.app.database import Base
 
 # Constants for commonly used fields
 COMMON_FIELDS = {
@@ -31,13 +31,13 @@ class User(BaseModel):
     __tablename__ = "users"
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
+    hashed_password = Column(String) #store hashed password
     is_active = Column(Boolean, default=True)
     # Relationships
     orders = relationship("Order", back_populates="user")
     reviews = relationship("Review", back_populates="user")
-    given_feedbacks = relationship("UserFeedback", foreign_keys="UserFeedback.reviewer_id", back_populates="reviewer")
-    received_feedbacks = relationship("UserFeedback", foreign_keys="UserFeedback.reviewed_user_id",
+    given_reviews = relationship("UserReview", foreign_keys="UserReview.reviewer_id", back_populates="reviewer")
+    received_reviews = relationship("UserReview", foreign_keys="UserReview.reviewed_user_id",
                                       back_populates="reviewed_user")
 
 
@@ -72,14 +72,14 @@ class Review(BaseModel):
     card = relationship("Card", back_populates="reviews")
 
 
-class UserFeedback(BaseModel):
-    __tablename__ = "user_feedbacks"
+class UserReview(BaseModel):
+    __tablename__ = "user_reviews"
     reviewed_user_id = Column(Integer, ForeignKey("users.id"))
     rating = Column(Integer)
     comment = Column(String, nullable=True)
     content = Column(String, index=True)
     reviewer_id = Column(Integer, ForeignKey("users.id"))
     # Relationships
-    reviewer = relationship("User", foreign_keys="UserFeedback.reviewer_id", back_populates="given_feedbacks")
-    reviewed_user = relationship("User", foreign_keys="UserFeedback.reviewed_user_id",
-                                 back_populates="received_feedbacks")
+    reviewer = relationship("User", foreign_keys="UserReview.reviewer_id", back_populates="given_reviews")
+    reviewed_user = relationship("User", foreign_keys="UserReview.reviewed_user_id",
+                                 back_populates="received_reviews")

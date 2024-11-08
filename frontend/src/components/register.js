@@ -7,10 +7,12 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        setIsSubmitting(true);  // Prevent multiple submissions while request is being processed
         try {
             const response = await axios.post('http://localhost:8000/users/', {
                 username,
@@ -20,16 +22,24 @@ function Register() {
 
             if (response.status === 201) {
                 setMessage("User registered successfully!");
-                navigate('/login'); // Redirect user to login page after successful registration
+                setTimeout(() => {
+                    navigate('/login');  // Redirect user to login page after 1.5 seconds
+                }, 1500);
             } else {
                 setMessage(`Registration failed: ${response.data.message}`);
             }
         } catch (error) {
             if (error.response && error.response.data) {
-                setMessage(`Error: ${error.response.data.detail}`);
+                if (Array.isArray(error.response.data.detail)) {
+                    setMessage(error.response.data.detail.map(e => e.msg).join(", "));
+                } else {
+                    setMessage(`Error: ${error.response.data.detail}`);
+                }
             } else {
                 setMessage("An unexpected error occurred during registration!");
             }
+        } finally {
+            setIsSubmitting(false);  // Re-enable form submission
         }
     };
 
@@ -39,17 +49,17 @@ function Register() {
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Username</label>
-                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                    <input type="text" aria-label="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
                 </div>
                 <div>
                     <label>Email</label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    <input type="email" aria-label="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 </div>
                 <div>
                     <label>Password</label>
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                    <input type="password" aria-label="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 </div>
-                <button type="submit">Register</button>
+                <button type="submit" disabled={isSubmitting}>Register</button>
             </form>
             {message && <p>{message}</p>}
         </div>

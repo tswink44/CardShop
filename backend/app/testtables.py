@@ -2,18 +2,17 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from app.database import Base
-from app.main import app, get_db
+from backend.app.database import Base, get_db
+from backend.app.main import app
 
-DATABASE_URL = "sqlite:///./test.db"  # Use SQLite for testing
+# Update the database to use an in-memory SQLite database
+DATABASE_URL = "sqlite:///./test.db"
 
+# Create an engine and session for testing with SQLite
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Create a new database session for testing
-Base.metadata.create_all(bind=engine)
-
-
+# Override get_db to use the test session
 def override_get_db():
     try:
         db = TestingSessionLocal()
@@ -21,40 +20,109 @@ def override_get_db():
     finally:
         db.close()
 
-
+# Override the application's get_db dependency
 app.dependency_overrides[get_db] = override_get_db
 
+# TestClient is used to interact with your FastAPI app as though you were a client
 client = TestClient(app)
 
-
+# Set up and tear down the database between tests
 @pytest.fixture(scope="module")
 def setup_database():
-    # Set up database, this will be run once for all tests in the module
+    # Create the database tables before the test suite runs
     Base.metadata.create_all(bind=engine)
     yield
+    # Drop the tables after the test suite completes
     Base.metadata.drop_all(bind=engine)
 
+# ---------------- Tests ---------------- #
 
 def test_create_user(setup_database):
+    """
+    Test that a new user can be created.
+    """
     response = client.post(
         "/users/",
         json={"username": "testuser", "email": "test@test.com", "password": "testpassword"}
     )
-    print(response.json())  # Log the error details returned by the API
+    print(response.json())  # Log potential error details
     assert response.status_code == 200
+    data = response.json()
+    assert data["username"] == "testuser"
+    assert data["email"] == "test@test.com"
 
 
 def test_get_users(setup_database):
+    """
+    Test getting the list of users.
+    """
     response = client.get("/users/")
     assert response.status_code == 200
     users = response.json()
-    assert len(users) > 0
+    assert len(users) > 0  # There should be at least one user (created in the previous test)
 
 
 def test_get_user(setup_database):
-    response = client.get("/users/test@test.com")
+    """
+    Test retrieving a user by ID.
+    """
+    # Create a new user first (or ensure one exists)
+    response = client.post(
+        "/users/",
+        json={"username": "anotheruser", "email": "another@test.com", "password": "password123"}
+    )
+    assert response.status_code == 200
+    user_id = response.json()["id"]
+
+    # Fetch that user by ID
+    response = client.get(f"/users/{user_id}")
     assert response.status_code == 200
     user = response.json()
-    assert user["username"] == "testuser"
+    assert user["username"] == "anotheruser"
+    assert user["email"] == "another@test.com"
+
+
+def test_update_user(setup_database):
+    """
+    Test updating an existing user.
+    """
+    # Create a new user first
+    response = client.post(
+        "/users/",
+        json={"username": "updateuser", "email": "update@test.com", "password": "password123"}
+    )
+    assert response.status_code == 200
+    user_id = response.json()["id"]
+
+    # Update the user's email
+    response = client.put(
+        f"/users/{user_id}",
+        json={"username": "updateduser", "email": "newemail@test.com", "password": "newpassword"}
+    )
+    assert response.status_code == 200
+    updated_user = response.json()
+    assert updated_user["email"] == "newemail@test.com"
+
+
+def test_delete_user(setup_database):
+    """
+    Test deleting an existing user.
+    """
+    # Create a new user to delete
+    response = client.post(
+        "/users/",
+        json={"username": "deleteuser", "email": "delete@test.com", "password": "password123"}
+    )
+    assert response.status_code == 200
+    user_id = response.json()["id"]
+
+    # Delete the user
+    response = client.delete(f"/users/{user_id}")
+    assert response.status_code == 200
+    assert response.json()["message"] == "User deleted successfully"
+
+    # Confirm that the user no longer exists
+    response = client.get(f"/users/{user_id}")
+    assert response.status_code == 404
 
 # Add more tests for other CRUD operations as needed

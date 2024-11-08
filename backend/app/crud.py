@@ -1,143 +1,219 @@
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from datetime import datetime
-from app import models, schemas
-from passlib.context import CryptContext
-
-# Constants
-HASH_SCHEME = "bcrypt"
-
-pwd_context = CryptContext(schemes=[HASH_SCHEME], deprecated="auto")
+from backend.app.models import Card, User, Order, OrderItem, Review, UserReview
+from backend.app.schemas import CardCreate, UserCreate, OrderCreate, OrderItemCreate, ReviewCreate, UserReviewCreate
+from backend.app.utils import hash_password, verify_password
 
 
-def get_password_hash(password: str) -> str:
-    """Hashing password."""
-    return pwd_context.hash(password)
+# --------------------- CRUD Operations for Card --------------------- #
 
-
-def get_db_entity_by_id(db: Session, model, entity_id: int):
-    """Retrieve an entity by its ID."""
-    return db.query(model).filter(model.id == entity_id).first()
-
-
-def get_db_entities(db: Session, model, skip: int = 0, limit: int = 10):
-    """Retrieve entities with pagination."""
-    return db.query(model).offset(skip).limit(limit).all()
-
-
-def create_entity(db: Session, entity) -> None:
-    """Add and commit entity to the database."""
-    db.add(entity)
+def create_card(db: Session, card: CardCreate) -> Card:
+    db_card = Card(**card.dict())
+    db.add(db_card)
     db.commit()
-    db.refresh(entity)
-
-
-# Refactored Card Operations
-def create_card(db: Session, card: schemas.CardCreate) -> models.Card:
-    db_card = models.Card(**card.dict())
-    create_entity(db, db_card)
+    db.refresh(db_card)
     return db_card
 
 
-def get_card(db: Session, card_id: int) -> Optional[models.Card]:
-    return get_db_entity_by_id(db, models.Card, card_id)
+def get_card(db: Session, card_id: int) -> Optional[Card]:
+    return db.query(Card).filter(Card.id == card_id).first()
 
 
-def get_cards(db: Session, skip: int = 0, limit: int = 10) -> List[models.Card]:
-    return get_db_entities(db, models.Card, skip, limit)
+def get_cards(db: Session, skip: int = 0, limit: int = 10) -> List[Card]:
+    return db.query(Card).offset(skip).limit(limit).all()
 
 
-def update_card(db: Session, card_id: int, card: schemas.CardCreate) -> Optional[models.Card]:
-    db_card = get_card(db, card_id)
+def update_card(db: Session, card_id: int, card_data: CardCreate) -> Optional[Card]:
+    db_card = db.query(Card).filter(Card.id == card_id).first()
     if db_card:
-        for key, value in card.dict().items():
+        for key, value in card_data.dict(exclude_unset=True).items():
             setattr(db_card, key, value)
-        create_entity(db, db_card)
+        db.commit()
+        db.refresh(db_card)
     return db_card
 
 
 def delete_card(db: Session, card_id: int) -> bool:
-    return delete_entity(db, models.Card, card_id)
-
-
-# Refactored User Operations
-def create_user(db: Session, user: schemas.UserCreate) -> models.User:
-    hashed_password = get_password_hash(user.password)
-    db_user = models.User(email=user.email, username=user.username, hashed_password=hashed_password)
-    create_entity(db, db_user)
-    return db_user
-
-
-def get_user(db: Session, email: str) -> Optional[models.User]:
-    return db.query(models.User).filter(models.User.email == email).first()
-
-
-def get_users(db: Session, skip: int = 0, limit: int = 10) -> List[models.User]:
-    return get_db_entities(db, models.User, skip, limit)
-
-
-def update_user(db: Session, user_id: int, user: schemas.UserCreate) -> Optional[models.User]:
-    db_user = get_db_entity_by_id(db, models.User, user_id)
-    if db_user:
-        for key, value in user.dict(exclude_unset=True).items():
-            setattr(db_user, key, value)
-        create_entity(db, db_user)
-    return db_user
-
-
-def delete_user(db: Session, user_id: int) -> bool:
-    return delete_entity(db, models.User, user_id)
-
-
-# General deletion function to reduce code duplication
-def delete_entity(db: Session, model, entity_id: int) -> bool:
-    entity = get_db_entity_by_id(db, model, entity_id)
-    if entity:
-        db.delete(entity)
+    db_card = db.query(Card).filter(Card.id == card_id).first()
+    if db_card:
+        db.delete(db_card)
         db.commit()
         return True
     return False
 
 
-# Refactored Order Operations
-def create_order(db: Session, order: schemas.OrderCreate, user_id: int) -> models.Order:
-    db_order = models.Order(user_id=user_id, total_price=order.total_price, created_at=datetime.utcnow())
-    create_entity(db, db_order)
+# --------------------- CRUD Operations for User --------------------- #
+
+def create_user(db: Session, user: UserCreate) -> User:
+    hashed_password = hash_password(user.password)  # Hash the password
+    db_user = User(
+        username=user.username,
+        email=user.email,
+        hashed_password=hashed_password  # Store the hashed password
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def get_user(db: Session, user_id: int) -> Optional[User]:
+    return db.query(User).filter(User.id == user_id).first()
+
+
+def get_user_by_email(db: Session, email: str) -> Optional[User]:
+    return db.query(User).filter(User.email == email).first()
+
+
+def get_users(db: Session, skip: int = 0, limit: int = 10) -> List[User]:
+    return db.query(User).offset(skip).limit(limit).all()
+
+
+def update_user(db: Session, user_id: int, user_data: UserCreate) -> Optional[User]:
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if db_user:
+        for key, value in user_data.dict(exclude_unset=True).items():
+            setattr(db_user, key, value)
+        db.commit()
+        db.refresh(db_user)
+    return db_user
+
+
+def delete_user(db: Session, user_id: int) -> bool:
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if db_user:
+        db.delete(db_user)
+        db.commit()
+        return True
+    return False
+
+# --------------------- CRUD Operation for Authentication --------------------- #
+def authenticate_user(db: Session, email: str, password: str):
+    # Fetch the user from the DB
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        return False
+
+    # Verify the password with the hash
+    if not verify_password(password, user.hashed_password):
+        return False
+
+    return user
+
+
+
+
+
+
+
+# --------------------- CRUD Operations for Order --------------------- #
+
+def create_order(db: Session, order: OrderCreate) -> Order:
+    db_order = Order(**order.dict())
+    db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
     return db_order
 
 
-def get_order(db: Session, order_id: int) -> Optional[models.Order]:
-    return get_db_entity_by_id(db, models.Order, order_id)
+def get_order(db: Session, order_id: int) -> Optional[Order]:
+    return db.query(Order).filter(Order.id == order_id).first()
 
 
-def get_orders_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 10) -> List[models.Order]:
-    return db.query(models.Order).filter(models.Order.user_id == user_id).offset(skip).limit(limit).all()
+def get_orders(db: Session, skip: int = 0, limit: int = 10) -> List[Order]:
+    return db.query(Order).offset(skip).limit(limit).all()
 
 
-# Refactored Review Operations
-def create_review(db: Session, review: schemas.ReviewCreate, user_id: int) -> models.Review:
-    db_review = models.Review(user_id=user_id, card_id=review.card_id, rating=review.rating,
-                              comment=review.comment, created_at=datetime.utcnow())
-    create_entity(db, db_review)
+def update_order(db: Session, order_id: int, order_data: OrderCreate) -> Optional[Order]:
+    db_order = db.query(Order).filter(Order.id == order_id).first()
+    if db_order:
+        for key, value in order_data.dict(exclude_unset=True).items():
+            setattr(db_order, key, value)
+        db.commit()
+        db.refresh(db_order)
+    return db_order
+
+
+def delete_order(db: Session, order_id: int) -> bool:
+    db_order = db.query(Order).filter(Order.id == order_id).first()
+    if db_order:
+        db.delete(db_order)
+        db.commit()
+        return True
+    return False
+
+
+# --------------------- CRUD Operations for OrderItem --------------------- #
+
+def create_order_item(db: Session, order_item: OrderItemCreate) -> OrderItem:
+    db_order_item = OrderItem(**order_item.dict())
+    db.add(db_order_item)
+    db.commit()
+    db.refresh(db_order_item)
+    return db_order_item
+
+
+def get_order_items(db: Session, order_id: int) -> List[OrderItem]:
+    return db.query(OrderItem).filter(OrderItem.order_id == order_id).all()
+
+
+def delete_order_item(db: Session, order_item_id: int) -> bool:
+    db_order_item = db.query(OrderItem).filter(OrderItem.id == order_item_id).first()
+    if db_order_item:
+        db.delete(db_order_item)
+        db.commit()
+        return True
+    return False
+
+
+# --------------------- CRUD Operations for Review --------------------- #
+
+def create_review(db: Session, review: ReviewCreate) -> Review:
+    db_review = Review(**review.dict())
+    db.add(db_review)
+    db.commit()
+    db.refresh(db_review)
     return db_review
 
 
-def get_reviews_by_card(db: Session, card_id: int, skip: int = 0, limit: int = 10) -> List[models.Review]:
-    return db.query(models.Review).filter(models.Review.card_id == card_id).offset(skip).limit(limit).all()
+def get_review(db: Session, review_id: int) -> Optional[Review]:
+    return db.query(Review).filter(Review.id == review_id).first()
 
 
-def create_user_review(db: Session, review: schemas.UserReviewCreate, reviewer_id: int) -> models.UserReview:
-    db_user_review = models.UserReview(
-        reviewer_id=reviewer_id,
-        reviewed_user_id=review.reviewed_user_id,
-        rating=review.rating,
-        comment=review.comment,
-        created_at=datetime.utcnow()
-    )
-    create_entity(db, db_user_review)
+def get_reviews(db: Session, card_id: int) -> List[Review]:
+    return db.query(Review).filter(Review.card_id == card_id).all()
+
+
+def delete_review(db: Session, review_id: int) -> bool:
+    db_review = db.query(Review).filter(Review.id == review_id).first()
+    if db_review:
+        db.delete(db_review)
+        db.commit()
+        return True
+    return False
+
+
+# --------------------- CRUD Operations for UserReview --------------------- #
+
+def create_user_review(db: Session, user_review: UserReviewCreate) -> UserReview:
+    db_user_review = UserReview(**user_review.dict())
+    db.add(db_user_review)
+    db.commit()
+    db.refresh(db_user_review)
     return db_user_review
 
 
-def get_reviews_by_user(db: Session, reviewed_user_id: int, skip: int = 0, limit: int = 10) -> List[models.UserReview]:
-    return db.query(models.UserReview).filter(models.UserReview.reviewed_user_id == reviewed_user_id).offset(
-        skip).limit(limit).all()
+def get_user_review(db: Session, user_review_id: int) -> Optional[UserReview]:
+    return db.query(UserReview).filter(UserReview.id == user_review_id).first()
+
+
+def get_user_reviews(db: Session, reviewed_user_id: int) -> List[UserReview]:
+    return db.query(UserReview).filter(UserReview.reviewed_user_id == reviewed_user_id).all()
+
+
+def delete_user_review(db: Session, user_review_id: int) -> bool:
+    db_user_review = db.query(UserReview).filter(UserReview.id == user_review_id).first()
+    if db_user_review:
+        db.delete(db_user_review)
+        db.commit()
+        return True
+    return False

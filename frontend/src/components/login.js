@@ -1,31 +1,29 @@
-
 import React, { useState } from 'react';
 import axios from 'axios';
-import {Link, useNavigate} from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom'; // Import Link for navigation
 
-const Login = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const history = useNavigate();
+function Login({ setToken }) {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [message, setMessage] = useState("");
+    const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setError('');
-
         try {
-            const response = await axios.post('http://127.0.0.1:8000/login', {
-                username: username,
-                password: password
-            }, {
-                withCredentials: true
+            const response = await axios.post('http://localhost:8000/login', {
+                email,
+                password
             });
 
-            if (response.status === 200) {
-                history.push('/');
+            if (response.data.token) {
+                setToken(response.data.token);  // Save the token upon successful login.
+                navigate('/');  // After successful login, redirect to home page.
+            } else {
+                setMessage("Login failed!");
             }
-        } catch (err) {
-            setError('Login failed. Please check your credentials.');
+        } catch (error) {
+            setMessage("An error occurred during login.");
         }
     };
 
@@ -33,29 +31,24 @@ const Login = () => {
         <div>
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
-                <label htmlFor="username">Username:</label>
-                <input
-                    type="text"
-                    id="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                />
-                <label htmlFor="password">Password:</label>
-                <input
-                    type="password"
-                    id="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                {error && <p style={{color: 'red'}}>{error}</p>}
+                <div>
+                    <label>Email</label>
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                </div>
                 <button type="submit">Login</button>
             </form>
+            {message && <p>{message}</p>}
 
+            {/* Link to redirect users to the registration page */}
             <p>
-                Don't have an account? <Link to="/register">Register</Link> {/* Use Link component */}
+                Don't have an account? <Link to="/register">Sign up</Link>
             </p>
         </div>
     );
-};
+}
 
 export default Login;
