@@ -7,19 +7,19 @@ from backend.app.utils import hash_password, verify_password
 
 # --------------------- CRUD Operations for Card --------------------- #
 
-def create_card(db: Session, card: CardCreate) -> Card:
-    db_card = Card(**card.dict())
+def create_card(db: Session, card: CardCreate):
+    db_card = Card(
+        name=card.name,
+        description=card.description,
+        price=card.price,
+        quantity=card.quantity
+    )
     db.add(db_card)
     db.commit()
     db.refresh(db_card)
     return db_card
 
-
-def get_card(db: Session, card_id: int) -> Optional[Card]:
-    return db.query(Card).filter(Card.id == card_id).first()
-
-
-def get_cards(db: Session, skip: int = 0, limit: int = 10) -> List[Card]:
+def get_cards(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Card).offset(skip).limit(limit).all()
 
 

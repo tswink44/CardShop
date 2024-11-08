@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -7,7 +8,8 @@ from typing import List
 from backend.app import crud, schemas, models
 from backend.app.crud import authenticate_user
 from backend.app.database import get_db, initialize_database, connect_async_database, disconnect_async_database
-from backend.app.schemas import UserLogin
+from backend.app.schemas import UserLogin, Token, CardCreate
+from backend.app.utils import create_access_token, create_refresh_token, verify_token
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -19,6 +21,12 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+invalid_token_exception = HTTPException(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail="Invalid token",
+    headers={"WWW-Authenticate": "Bearer"},
 )
 
 # Create the database tables on server start
@@ -38,23 +46,15 @@ async def shutdown():
 
 # ---------------- Routes for Card (Synchronous CRUD with SQLAlchemy ORM) ---------------- #
 
-@app.post("/cards/", response_model=schemas.CardRead)
-def create_card(card: schemas.CardCreate, db: Session = Depends(get_db)):
+@app.post("/store/card/", response_model=schemas.CardRead)
+def create_card_listing(card: CardCreate, db: Session = Depends(get_db)):
     return crud.create_card(db=db, card=card)
 
 
-@app.get("/cards/", response_model=List[schemas.CardRead])
-def read_cards(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    cards = crud.get_cards(db=db, skip=skip, limit=limit)
-    return cards
 
-
-@app.get("/cards/{card_id}", response_model=schemas.CardRead)
-def read_card(card_id: int, db: Session = Depends(get_db)):
-    card = crud.get_card(db=db, card_id=card_id)
-    if card is None:
-        raise HTTPException(status_code=404, detail="Card not found")
-    return card
+@app.get("/store/cards/", response_model=List[schemas.CardRead])
+def get_cards(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return crud.get_cards(db=db, skip=skip, limit=limit)
 
 
 @app.put("/cards/{card_id}", response_model=schemas.CardRead)
@@ -75,7 +75,7 @@ def delete_card(card_id: int, db: Session = Depends(get_db)):
 
 # ---------------- Routes for User (Synchronous CRUD with SQLAlchemy ORM) ---------------- #
 
-@app.post("/users/", response_model=schemas.UserRead)
+@app.post("/users/", response_model=schemas.UserRead,status_code=status.HTTP_201_CREATED)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
@@ -112,17 +112,36 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     return {"message": "User deleted successfully"}
 
 # ---------------- Routes for User Authentication (Synchronous CRUD with SQLAlchemy ORM) ---------------- #
-@app.post("/login/")
-def login(user: UserLogin, db: Session = Depends(get_db)):
-    authenticated_user = authenticate_user(db, user.email, user.password)
+@app.post("/login/", response_model=Token)
+def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    # Authenticate user and verify the password (not shown here)
+    authenticated_user = authenticate_user(db, user_credentials.username, user_credentials.password)
     if not authenticated_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail="Invalid credentials"
         )
-    return {"message": "Login successful"}
 
+    # Generate both access and refresh tokens
+    access_token = create_access_token(data={"sub": authenticated_user.email})
+    refresh_token = create_refresh_token(data={"sub": authenticated_user.email})
+
+    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+# Route to refresh token
+@app.post("/token/refresh", response_model=Token)
+def refresh_token(refresh_token: str):
+    # Verify the refresh token
+    payload = verify_token(refresh_token, invalid_token_exception)
+
+    if not payload:
+        raise invalid_token_exception
+
+    # Issue a new access token
+    new_access_token = create_access_token(data={"sub": payload["sub"]})
+
+    return {"access_token": new_access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 # ---------------- Routes for Order (Synchronous CRUD with SQLAlchemy ORM) ---------------- #
 

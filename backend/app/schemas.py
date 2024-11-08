@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, constr, conint
 
 
 # Base schema that is inherited by other schemas
@@ -20,8 +20,14 @@ class CardBase(BaseModel):
     quantity: int
 
 
-class CardCreate(CardBase):
-    pass
+class CardCreate(BaseModel):
+    name: constr(min_length=1)  # Ensure the name is non-empty
+    description: constr(min_length=1)
+    price: float
+    quantity: conint(ge=1)  # Ensure at least 1 quantity
+
+    class Config:
+        orm_mode = True
 
 
 class CardRead(CardBase, BaseSchema):
@@ -125,6 +131,13 @@ class UserReviewRead(UserReviewBase, BaseSchema):
     reviewed_user: UserRead
     reviewer: UserRead
 
+class Token(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str  # Usually "bearer"
+
+class TokenData(BaseModel):
+    email: str
 
 # Here is the necessary Config so you can refer to related models within the schemas
 CardRead.update_forward_refs()
