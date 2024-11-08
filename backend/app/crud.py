@@ -13,7 +13,7 @@ def create_card(db: Session, card: CardCreate, image_url: str):
         description=card.description,
         price=card.price,
         quantity=card.quantity,
-        image_url=image_url
+        image_url=image_url,
     )
     db.add(db_card)
     db.commit()

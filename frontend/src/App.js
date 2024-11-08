@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import './styles/Global.css';
 import NavBar from './components/NavBar';
 import HomePage from './components/HomePage';
 import Login from './components/Login';
@@ -7,7 +8,8 @@ import Register from './components/Register';
 import Store from './components/Store';
 import Profile from './components/Profile';
 import CartPage from './components/CartPage';  // Import CartPage
-import { CartProvider } from './components/CartContext';  // Import CartProvider
+import { CartProvider } from './components/CartContext';
+import CreateListing from "./components/CreateListing";
 
 const App = () => {
     const [token, setToken] = useState(localStorage.getItem('token'));
@@ -31,7 +33,8 @@ const App = () => {
                         <Route path="/register" element={<Register />} />
                         <Route path="/store" element={<Store />} />
                         <Route path="/profile" element={<Profile />} />
-                        <Route path="/cart" element={<CartPage />} />  {/* Add cart route */}
+                        <Route path="/create-listing" element={<CreateListing />} />
+                        <Route path="/cart" element={<CartPage />} />
                     </Routes>
                 </div>
             </Router>

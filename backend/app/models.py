@@ -16,8 +16,9 @@ class BaseModel(Base):
     created_at = COMMON_FIELDS['created_at']
 
 
-class Card(BaseModel):
+class Card(Base):
     __tablename__ = "cards"
+    id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     description = Column(String)
     price = Column(Float)

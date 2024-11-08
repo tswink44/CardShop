@@ -4,13 +4,7 @@ import React, { createContext, useContext, useState } from 'react';
 const CartContext = createContext();
 
 // Hook to use cart context in components
-export const useCartContext = () => {
-    const ctx = useContext(CartContext);
-    if (!ctx) {
-        throw new Error("useCartContext must be used within a CartProvider");
-    }
-    return ctx;
-};
+export const useCartContext = () => useContext(CartContext);
 
 // Provide cart state globally
 export const CartProvider = ({ children }) => {
@@ -26,9 +20,11 @@ export const CartProvider = ({ children }) => {
         setCartItems((prevItems) => prevItems.filter(item => item.id !== itemId));
     };
 
-    // Calculate the cart total (subtotal)
+    // Calculate the cart subtotal based on item prices and quantities
     const calculateTotal = () => {
-        return cartItems.reduce((total, item) => total + item.price, 0).toFixed(2);
+        return cartItems.reduce((total, item) => {
+            return total + (item.price * item.quantity);  // price * quantity per item type
+        }, 0).toFixed(2);  // Keep 2 decimal points
     };
 
     // The cart context value that will be accessible to all components

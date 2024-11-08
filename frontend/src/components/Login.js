@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
+import '../styles/Form.css';
 
 const Login = ({ setToken }) => {
     const [email, setEmail] = useState("");
@@ -61,6 +62,9 @@ const Login = ({ setToken }) => {
                 <button type="submit">Login</button>
             </form>
             {message && <p>{message}</p>}
+            <p>
+                Don't have an account? <Link to="/register">Register here</Link>.
+            </p>
         </div>
     );
 };

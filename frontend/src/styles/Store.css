@@ -1,0 +1,51 @@
+.store-page {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.card-item {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 20px;
+}
+
+.card-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+.card-item h2 {
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.card-item p {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.card-item input {
+    width: 50px;
+    margin-right: 10px;
+}
+
+.card-item button {
+    background-color: #28a745;
+    margin-top: 10px;
+}
+
+.card-item button:hover {
+    background-color: #218838;
+}

@@ -21,10 +21,11 @@ class CardBase(BaseModel):
 
 
 class CardCreate(BaseModel):
-    name: constr(min_length=1)  # Ensure the name is non-empty
+    name: constr(min_length=1)
     description: constr(min_length=1)
     price: float
-    quantity: conint(ge=1)  # Ensure at least 1 quantity
+    quantity: conint(ge=1)
+    image_url: str = None
 
     class Config:
         orm_mode = True

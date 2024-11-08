@@ -1,31 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
-import './HomePage.css';
+import axios from 'axios';
+import '../styles/HomePage.css';  // Ensure this path is correct
 
 const HomePage = () => {
-    const [isVisible, setIsVisible] = useState(false);
+    const [products, setProducts] = useState([]);  // State to hold product listings
+    const [loading, setLoading] = useState(true);  // State for loading spinner
+    const [error, setError] = useState(null);  // State to handle errors
 
-    const { ref, inView } = useInView({
-        triggerOnce: true, // Trigger animation only once when the element comes into view
-        threshold: 0.5, // 50% of the image is in the viewport
-    });
-
+    // Fetch product listings from the API
     useEffect(() => {
-        if (inView) {
-            setIsVisible(true);
-        }
-    }, [inView]);
+        const fetchProducts = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/store/cards');  // API endpoint to get featured products
+                setProducts(response.data);  // Store the fetched products in state
+                setLoading(false);
+            } catch (err) {
+                setError("Failed to load products.");
+                setLoading(false);
+            }
+        };
 
-    const images = [
-        { src: '/assets/images/homepage1.png', alt: 'Image 1', caption: 'Card Display' },
-        { src: '/assets/images/homepage2.png', alt: 'Image 2', caption: 'Players playing card games' },
-        { src: '/assets/images/homepage3.png', alt: 'Image 3', caption: 'Graded Cards' },
+        fetchProducts();
+    }, []);
 
-    ];
+    // Handle the loading state
+    if (loading) {
+        return <div>Loading featured products...</div>;
+    }
+
+    // Handle the error state
+    if (error) {
+        return <div>{error}</div>;
+    }
 
     return (
         <div>
-
             {/* Hero Section */}
             <section className="hero">
                 <div className="hero-content">
@@ -39,24 +48,14 @@ const HomePage = () => {
             <section className="featured-products">
                 <h2>Featured Products</h2>
                 <div className="products-grid">
-                    <div className="product">
-                        <img src="/assets/images/homepage1.png" alt="Product 1" />
-                        <h3>Product 1</h3>
-                        <p>$25.99</p>
-                        <button>View Product</button>
-                    </div>
-                    <div className="product">
-                        <img src="/assets/images/homepage2.png" alt="Product 2" />
-                        <h3>Product 2</h3>
-                        <p>$39.99</p>
-                        <button>View Product</button>
-                    </div>
-                    <div className="product">
-                        <img src="/assets/images/homepage3.png" alt="Product 3" />
-                        <h3>Product 3</h3>
-                        <p>$49.99</p>
-                        <button>View Product</button>
-                    </div>
+                    {products.slice(0, 3).map((product) => (
+                        <div key={product.id} className="product">
+                            <img src={`http://localhost:8000${product.image_url}`} alt={product.name} />
+                            <h3>{product.name}</h3>
+                            <p>${product.price}</p>
+                            <button>View Product</button>
+                        </div>
+                    ))}
                 </div>
                 <button className="view-all-btn">View All Products</button>
             </section>
@@ -65,6 +64,7 @@ const HomePage = () => {
             <section className="testimonials">
                 <h2>What Our Customers Say</h2>
                 <div className="testimonials-grid">
+                    {/* Make sure to have customer images available */}
                     <div className="testimonial">
                         <img src="customer1.jpg" alt="Customer 1" />
                         <p>"I love the products! They arrived on time and exceeded my expectations."</p>
