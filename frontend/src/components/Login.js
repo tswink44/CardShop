@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-function Login({ setToken }) {
+const Login = ({ setToken }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
@@ -11,40 +11,28 @@ function Login({ setToken }) {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        try {
-            // Prepare form URL-encoded data for the login request
-            const formData = new FormData();
-            formData.append('username', email);  // Backend expects 'username' field for email
-            formData.append('password', password);
+        // Prepare form URL-encoded data
+        const formData = new FormData();
+        formData.append('username', email);  // The field is "username" in OAuth2PasswordRequestForm
+        formData.append('password', password);
 
-            // Make API call to FastAPI login endpoint
+        try {
+            // Axios request with form data (NOT JSON)
             const response = await axios.post('http://localhost:8000/login', formData, {
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/x-www-form-urlencoded',  // Explicitly set Content-Type
                 },
             });
 
-            // Log entire response for debugging purposes
-            console.log("Response from login:", response.data);
-
-            // Check if the access_token and refresh_token are present
-            if (response.data.access_token && response.data.refresh_token) {
-                // Save tokens in context and local storage
-                setToken(response.data.access_token);  // Save access token in context or state
-                localStorage.setItem('refresh_token', response.data.refresh_token);  // Save refresh token
-
-                // Optionally, save token type (usually 'bearer')
-                localStorage.setItem('token_type', response.data.token_type);
-
-                // Redirect to profile page upon successful login
-                navigate('/profile');
+            if (response.data.access_token) {
+                setToken(response.data.access_token);  // Save the token in context or state
+                navigate('/profile');  // Redirect to profile upon login success
             } else {
-                setMessage("Login failed! No tokens found.");
+                setMessage("Login failed!");
             }
         } catch (error) {
-            // Handle any error that occurs during login
             setMessage("An error occurred during login.");
-            console.error("Login error:", error.response?.data || error.message);
+            console.error("Login error: ", error.response?.data || error.message);
         }
     };
 
@@ -73,11 +61,8 @@ function Login({ setToken }) {
                 <button type="submit">Login</button>
             </form>
             {message && <p>{message}</p>}
-
-            {/* Link to redirect users to the registration page */}
-            <p>Don't have an account? <Link to="/register">Sign up</Link></p>
         </div>
     );
-}
+};
 
 export default Login;

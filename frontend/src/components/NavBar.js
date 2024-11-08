@@ -1,62 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useCartContext } from './CartContext';  // Import the cart context
 
-const NavBar = ({ setToken }) => {
-    const [token, setLocalToken] = useState(localStorage.getItem('token'));
+const NavBar = ({ token, setToken }) => {
+    const { cartItems } = useCartContext();  // Access cartItems to display the number of items
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        // Update token state when the component mounts
-        setLocalToken(localStorage.getItem('token'));
-    }, [token]);
-
-    const handleLoginLogout = () => {
-        if (token) {
-            // Logout functionality: remove token from localStorage
-            localStorage.removeItem('token');
-            setLocalToken(null);
-        } else {
-            // Redirect to login page or handle login modal
-            // You can also trigger a login modal here if you want
-            window.location.href = '/login'; // Example: Redirect to the login page
-        }
+    // Handler for Logout
+    const handleLogout = () => {
+        setToken(null);  // Clear the authentication token
+        localStorage.removeItem('token');
+        navigate('/login');
     };
 
     return (
-        <nav style={styles.navBar}>
-            <div style={styles.navLinks}>
-                <Link to="/" style={styles.navLink}>Home</Link>
-                <Link to="/store" style={styles.navLink}>Store</Link>
-            </div>
-            <button onClick={handleLoginLogout} style={styles.loginButton}>
-                {token ? 'Logout' : 'Login'}
-            </button>
+        <nav>
+            <ul>
+                <li><Link to="/">Home</Link></li>
+                <li><Link to="/store">Store</Link></li>
+
+                {/* Conditionally render Login or Profile */}
+                {token ? (
+                    <>
+                        <li><Link to="/profile">Profile</Link></li>
+                        <li><button onClick={handleLogout}>Logout</button></li>
+                    </>
+                ) : (
+                    <li><Link to="/login">Login</Link></li>
+                )}
+
+                {/* Add a Shopping Cart link showing the number of items */}
+                <li>
+                    <Link to="/cart">
+                        Cart ({cartItems.length})  {/* Display the number of items in the cart */}
+                    </Link>
+                </li>
+            </ul>
         </nav>
     );
-};
-
-const styles = {
-    navBar: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: '10px 20px',
-        backgroundColor: '#333',
-        color: 'white',
-    },
-    navLinks: {
-        display: 'flex',
-        gap: '20px',
-    },
-    navLink: {
-        color: 'white',
-        textDecoration: 'none',
-    },
-    loginButton: {
-        backgroundColor: '#4CAF50',
-        border: 'none',
-        padding: '10px 20px',
-        color: 'white',
-        cursor: 'pointer',
-    },
 };
 
 export default NavBar;

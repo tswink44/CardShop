@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
-import './homepage.css';
+import './HomePage.css';
 
 const HomePage = () => {
     const [isVisible, setIsVisible] = useState(false);

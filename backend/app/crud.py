@@ -7,12 +7,13 @@ from backend.app.utils import hash_password, verify_password
 
 # --------------------- CRUD Operations for Card --------------------- #
 
-def create_card(db: Session, card: CardCreate):
+def create_card(db: Session, card: CardCreate, image_url: str):
     db_card = Card(
         name=card.name,
         description=card.description,
         price=card.price,
-        quantity=card.quantity
+        quantity=card.quantity,
+        image_url=image_url
     )
     db.add(db_card)
     db.commit()

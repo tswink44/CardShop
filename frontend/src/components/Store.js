@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useCartContext } from './CartContext';  // Import the cart context
 
 const Store = () => {
     const [cards, setCards] = useState([]);
-    const [loading, setLoading] = useState(true); // To show loading state
-    const [error, setError] = useState(null); // To handle errors, if any
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const { addToCart } = useCartContext();  // Access addToCart from CartContext
 
-    // Function to fetch cards from the backend API
     const fetchCards = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/store/cards');  // Adjust for your backend URL
-            setCards(response.data);  // Set the fetched cards response into the state
-            setLoading(false);  // Set loading to false once data is fetched
+            const response = await axios.get('http://localhost:8000/store/cards');
+            setCards(response.data);
+            setLoading(false);
         } catch (err) {
             console.error("Error fetching cards", err);
             setError("Error fetching cards. Please try again later.");
@@ -19,18 +20,13 @@ const Store = () => {
         }
     };
 
-    // useEffect to trigger the fetchCards function on first render
     useEffect(() => {
         fetchCards();
     }, []);
 
-    // Render loading state
     if (loading) return <div>Loading cards...</div>;
-
-    // Render any errors
     if (error) return <div>{error}</div>;
 
-    // Render cards when successfully fetched
     return (
         <div className="store-page">
             <h1>Cards Available in Store</h1>
@@ -38,10 +34,16 @@ const Store = () => {
                 {cards.map(card => (
                     <div key={card.id} className="card-item">
                         <h2>{card.name}</h2>
+                        <img
+                            src={`http://localhost:8000${card.image_url}`}
+                            alt={card.name}
+                            width="200px"
+                            height="200px"
+                        />
                         <p>{card.description}</p>
-                        <p>Price: ${card.price}</p>
-                        <p>Quantity: {card.quantity}</p>
-                        <button>Add to Cart</button>
+                        <p><strong>Price:</strong> ${card.price}</p>
+                        <p><strong>Quantity:</strong> {card.quantity}</p>
+                        <button onClick={() => addToCart(card)}>Add to Cart</button> {/* Add to Cart button */}
                     </div>
                 ))}
             </div>

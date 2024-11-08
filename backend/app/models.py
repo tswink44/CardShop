@@ -22,6 +22,7 @@ class Card(BaseModel):
     description = Column(String)
     price = Column(Float)
     quantity = Column(Integer)
+    image_url = Column(String, nullable=True)
     # Relationships
     order_items = relationship("OrderItem", back_populates="card")
     reviews = relationship("Review", back_populates="card")

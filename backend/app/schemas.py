@@ -34,6 +34,7 @@ class CardRead(CardBase, BaseSchema):
     id: int
     order_items: Optional[List['OrderItemRead']] = []
     reviews: Optional[List['ReviewRead']] = []
+    image_url: str = None
 
 
 # User Schema

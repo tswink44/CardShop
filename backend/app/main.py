@@ -1,8 +1,10 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Form, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import List
+import os
 
 # Importing CRUD, schemas, and database utilities
 from backend.app import crud, schemas, models
@@ -14,7 +16,6 @@ from backend.app.utils import create_access_token, create_refresh_token, verify_
 # Initialize FastAPI app
 app = FastAPI()
 
-# Allow CORS (Important for React frontend to communicate with the FastAPI backend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Temporarily allow all origins for testing
@@ -22,6 +23,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+UPLOAD_DIR = "./uploads"
+
+if not os.path.exists(UPLOAD_DIR):
+    os.makedirs(UPLOAD_DIR)
+app.mount("/uploads", StaticFiles(directory="./uploads"), name="uploads")
+
+# Allow CORS (Important for React frontend to communicate with the FastAPI backend)
+
 
 invalid_token_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
@@ -47,9 +57,42 @@ async def shutdown():
 # ---------------- Routes for Card (Synchronous CRUD with SQLAlchemy ORM) ---------------- #
 
 @app.post("/store/card/", response_model=schemas.CardRead)
-def create_card_listing(card: CardCreate, db: Session = Depends(get_db)):
-    return crud.create_card(db=db, card=card)
+async def create_card_listing(
+    name: str = Form(...),  # Here, you now expect `Form` fields instead of query parameters
+    description: str = Form(...),
+    price: float = Form(...),
+    quantity: int = Form(...),
+    image: UploadFile = File(...),  # This remains as a file
+    db: Session = Depends(get_db)
+):
+    """
+    Create a new card listing in the store, with the option to upload a card image.
+    """
+    # Save the uploaded file to the server
+    file_location = f"{UPLOAD_DIR}/{image.filename}"
 
+    try:
+        with open(file_location, "wb+") as file_object:
+            file_object.write(image.file.read())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save image: {str(e)}")
+
+    # Build the image URL path (relative to the server)
+    image_url = f"/uploads/{image.filename}"
+
+    # Create the card listing in the database
+    new_card = crud.create_card(
+        db=db,
+        card=schemas.CardCreate(
+            name=name,
+            description=description,
+            price=price,
+            quantity=quantity
+        ),
+        image_url=image_url
+    )
+
+    return new_card
 
 
 @app.get("/store/cards/", response_model=List[schemas.CardRead])
