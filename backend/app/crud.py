@@ -29,20 +29,28 @@ def get_cards(db: Session, skip: int = 0, limit: int = 10):
     return db.query(Card).offset(skip).limit(limit).all()
 
 
-def update_card(db: Session, card_id: int, card_data: CardCreate) -> Optional[Card]:
+def update_card(db: Session, card_id: int, image_url: str, card_data: CardCreate) -> Optional[Card]:
     db_card = db.query(Card).filter(Card.id == card_id).first()
+
+
     if db_card:
         for key, value in card_data.dict(exclude_unset=True).items():
             setattr(db_card, key, value)
+
+        if image_url:
+            db_card.image_url = image_url
+
         db.commit()
+
         db.refresh(db_card)
+
     return db_card
 
 
 def delete_card(db: Session, card_id: int) -> bool:
-    db_card = db.query(Card).filter(Card.id == card_id).first()
-    if db_card:
-        db.delete(db_card)
+    card = db.query(Card).filter(Card.id == card_id).first()
+    if card:
+        db.delete(card)
         db.commit()
         return True
     return False
@@ -170,56 +178,56 @@ def delete_order_item(db: Session, order_item_id: int) -> bool:
         return True
     return False
 
-
+# ---------------------   TO DO ---------------------------------------- #
 # --------------------- CRUD Operations for Review --------------------- #
 
-def create_review(db: Session, review: ReviewCreate) -> Review:
-    db_review = Review(**review.dict())
-    db.add(db_review)
-    db.commit()
-    db.refresh(db_review)
-    return db_review
-
-
-def get_review(db: Session, review_id: int) -> Optional[Review]:
-    return db.query(Review).filter(Review.id == review_id).first()
-
-
-def get_reviews(db: Session, card_id: int) -> List[Review]:
-    return db.query(Review).filter(Review.card_id == card_id).all()
-
-
-def delete_review(db: Session, review_id: int) -> bool:
-    db_review = db.query(Review).filter(Review.id == review_id).first()
-    if db_review:
-        db.delete(db_review)
-        db.commit()
-        return True
-    return False
-
-
-# --------------------- CRUD Operations for UserReview --------------------- #
-
-def create_user_review(db: Session, user_review: UserReviewCreate) -> UserReview:
-    db_user_review = UserReview(**user_review.dict())
-    db.add(db_user_review)
-    db.commit()
-    db.refresh(db_user_review)
-    return db_user_review
-
-
-def get_user_review(db: Session, user_review_id: int) -> Optional[UserReview]:
-    return db.query(UserReview).filter(UserReview.id == user_review_id).first()
-
-
-def get_user_reviews(db: Session, reviewed_user_id: int) -> List[UserReview]:
-    return db.query(UserReview).filter(UserReview.reviewed_user_id == reviewed_user_id).all()
-
-
-def delete_user_review(db: Session, user_review_id: int) -> bool:
-    db_user_review = db.query(UserReview).filter(UserReview.id == user_review_id).first()
-    if db_user_review:
-        db.delete(db_user_review)
-        db.commit()
-        return True
-    return False
+# def create_review(db: Session, review: ReviewCreate) -> Review:
+#     db_review = Review(**review.dict())
+#     db.add(db_review)
+#     db.commit()
+#     db.refresh(db_review)
+#     return db_review
+#
+#
+# def get_review(db: Session, review_id: int) -> Optional[Review]:
+#     return db.query(Review).filter(Review.id == review_id).first()
+#
+#
+# def get_reviews(db: Session, card_id: int) -> List[Review]:
+#     return db.query(Review).filter(Review.card_id == card_id).all()
+#
+#
+# def delete_review(db: Session, review_id: int) -> bool:
+#     db_review = db.query(Review).filter(Review.id == review_id).first()
+#     if db_review:
+#         db.delete(db_review)
+#         db.commit()
+#         return True
+#     return False
+#
+#
+# # --------------------- CRUD Operations for UserReview --------------------- #
+#
+# def create_user_review(db: Session, user_review: UserReviewCreate) -> UserReview:
+#     db_user_review = UserReview(**user_review.dict())
+#     db.add(db_user_review)
+#     db.commit()
+#     db.refresh(db_user_review)
+#     return db_user_review
+#
+#
+# def get_user_review(db: Session, user_review_id: int) -> Optional[UserReview]:
+#     return db.query(UserReview).filter(UserReview.id == user_review_id).first()
+#
+#
+# def get_user_reviews(db: Session, reviewed_user_id: int) -> List[UserReview]:
+#     return db.query(UserReview).filter(UserReview.reviewed_user_id == reviewed_user_id).all()
+#
+#
+# def delete_user_review(db: Session, user_review_id: int) -> bool:
+#     db_user_review = db.query(UserReview).filter(UserReview.id == user_review_id).first()
+#     if db_user_review:
+#         db.delete(db_user_review)
+#         db.commit()
+#         return True
+#     return False

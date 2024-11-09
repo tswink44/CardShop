@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Form, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from typing import List
 import os
@@ -10,8 +10,8 @@ import os
 from backend.app import crud, schemas, models
 from backend.app.crud import authenticate_user
 from backend.app.database import get_db, initialize_database, connect_async_database, disconnect_async_database
-from backend.app.schemas import UserLogin, Token, CardCreate
-from backend.app.utils import create_access_token, create_refresh_token, verify_token
+from backend.app.schemas import UserLogin, Token, CardCreate, UserRead
+from backend.app.utils import check_if_admin, create_access_token, create_refresh_token, verify_token, get_current_user
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -110,20 +110,79 @@ def get_card(card_id: int, db: Session = Depends(get_db)):
     return card
 
 
-
 @app.put("/cards/{card_id}", response_model=schemas.CardRead)
-def update_card(card_id: int, card: schemas.CardCreate, db: Session = Depends(get_db)):
-    updated_card = crud.update_card(db=db, card_id=card_id, card_data=card)
-    if updated_card is None:
+def update_card(
+        card_id: int,
+        name: str = Form(...),
+        description: str = Form(...),
+        price: float = Form(...),
+        quantity: int = Form(...),
+        image: UploadFile = File(None),  # Image is optional
+        db: Session = Depends(get_db),
+        current_user: models.User = Depends(get_current_user)  # Ensure admin-only access
+):
+    """
+    Update an existing card listing, with optional image change.
+    Admin-only route.
+    """
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Not enough permissions to edit the listing.")
+
+    # Fetch existing card from the database
+    card = crud.get_card(db=db, card_id=card_id)
+    if card is None:
         raise HTTPException(status_code=404, detail="Card not found")
+
+    # Handle image upload if a new image has been uploaded
+    if image is not None:
+        # Save the new image if it is provided (replace the existing one)
+        file_location = f"{UPLOAD_DIR}/{image.filename}"
+        try:
+            with open(file_location, "wb+") as file_object:
+                file_object.write(image.file.read())
+            image_url = f"/uploads/{image.filename}"
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to save image: {str(e)}")
+    else:
+        # Keep the original image if no new image is uploaded
+        image_url = card.image_url
+
+    # Update the card in the database
+    updated_card = crud.update_card(
+        db,
+        card_id=card_id,
+        card_data=schemas.CardCreate(
+            name=name,
+            description=description,
+            price=price,
+            quantity=quantity
+        ),
+        image_url=image_url
+    )
+
+    if updated_card is None:
+        raise HTTPException(status_code=404, detail="Failed to update card")
+
     return updated_card
 
 
 @app.delete("/cards/{card_id}")
-def delete_card(card_id: int, db: Session = Depends(get_db)):
+def delete_card(card_id: int, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+
+    if not current_user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Not enough permissions to delete the listing.")
+
+
+    db_card = crud.get_card(db=db, card_id=card_id)
+    if db_card is None:
+        raise HTTPException(status_code=404, detail="Card not found")
+
+
     success = crud.delete_card(db=db, card_id=card_id)
     if not success:
-        raise HTTPException(status_code=404, detail="Card not found")
+        raise HTTPException(status_code=404, detail="Failed to delete card")
+
     return {"message": "Card deleted successfully"}
 
 
@@ -137,9 +196,12 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 
-@app.get("/users/", response_model=List[schemas.UserRead])
-def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return crud.get_users(db, skip=skip, limit=limit)
+@app.get("/me", response_model=schemas.UserRead)
+async def read_users_me(current_user: models.User = Depends(get_current_user)):
+    """
+    Return the current logged-in user's profile
+    """
+    return current_user
 
 
 @app.get("/users/{user_id}", response_model=schemas.UserRead)

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import '../styles/HomePage.css';  // Ensure this path is correct
+import '../styles/HomePage.css';
+import {Link} from "react-router-dom";  // Ensure this path is correct
 
 const HomePage = () => {
     const [products, setProducts] = useState([]);  // State to hold product listings
@@ -57,7 +58,7 @@ const HomePage = () => {
                         </div>
                     ))}
                 </div>
-                <button className="view-all-btn">View All Products</button>
+                <button className="view-all-btn"><Link to="Store">View All Products</Link></button>
             </section>
 
             {/* Testimonials Section */}
