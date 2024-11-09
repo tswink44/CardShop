@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCartContext } from './CartContext';
-import '../styles/CartPage.css';
+import styles from '../styles/CartPage.module.css';
 
 /**
  * CartPage component.
@@ -14,7 +14,7 @@ const CartPage = () => {
     const { cartItems, removeFromCart, calculateTotal } = useCartContext();  // Access cart context
 
     return (
-        <div>
+        <div className={styles.cartPage}>
             <h1>Your Cart</h1>
 
             {cartItems.length === 0 ? (
@@ -37,7 +37,7 @@ const CartPage = () => {
 
                     <h3>Subtotal: ${calculateTotal()}</h3>
 
-                    <button onClick={() => alert('Proceeding to checkout...')}>Checkout</button>
+                    <button onClick={() => alert('Simulated Checkout..')}>Checkout</button>
                 </div>
             )}
         </div>

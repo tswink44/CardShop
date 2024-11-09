@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCartContext } from './CartContext';
+import styles from '../styles/NavBar.module.css'; // Import CSS module
 
 /**
  * NavBar component that provides navigation links and user authentication controls.
@@ -22,24 +23,30 @@ const NavBar = ({ token, setToken }) => {
     };
 
     return (
-        <nav>
-            <ul>
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/store">Store</Link></li>
-
-
+        <nav className={styles.navBar}>
+            <ul className={styles.navList}>
+                <li className={styles.navItem}>
+                    <Link to="/" className={styles.navLink}>Home</Link>
+                </li>
+                <li className={styles.navItem}>
+                    <Link to="/store" className={styles.navLink}>Store</Link>
+                </li>
                 {token ? (
                     <>
-                        <li><Link to="/profile">Profile</Link></li>
-                        <li><button onClick={handleLogout}>Logout</button></li>
+                        <li className={styles.navItem}>
+                            <Link to="/profile" className={styles.navLink}>Profile</Link>
+                        </li>
+                        <li className={styles.navItem}>
+                            <button onClick={handleLogout} className={styles.logoutButton}>Logout</button>
+                        </li>
                     </>
                 ) : (
-                    <li><Link to="/login">Login</Link></li>
+                    <li className={styles.navItem}>
+                        <Link to="/login" className={styles.navLink}>Login</Link>
+                    </li>
                 )}
-
-
-                <li>
-                    <Link to="/cart">
+                <li className={styles.navItem}>
+                    <Link to="/cart" className={styles.navLink}>
                         Cart ({cartItems.length})
                     </Link>
                 </li>

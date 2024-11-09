@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import {Link, useNavigate} from 'react-router-dom';
-import '../styles/Form.css';
+import { Link, useNavigate } from 'react-router-dom';
+import styles from '../styles/Form.module.css'; // Import CSS module
 
 /**
  * The Login component renders a login form where users can enter their email and password to authenticate.
@@ -26,7 +26,6 @@ const Login = ({ setToken }) => {
         formData.append('password', password);
 
         try {
-
             const response = await axios.post('http://localhost:8000/login', formData, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -46,32 +45,34 @@ const Login = ({ setToken }) => {
     };
 
     return (
-        <div>
-            <h2>Login</h2>
+        <div className={styles.container}>
+            <h2 className={styles.title}>Login</h2>
             <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Email</label>
+                <div className={styles.formGroup}>
+                    <label className={styles.label}>Email</label>
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        className={styles.input}
                     />
                 </div>
-                <div>
-                    <label>Password</label>
+                <div className={styles.formGroup}>
+                    <label className={styles.label}>Password</label>
                     <input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
+                        className={styles.input}
                     />
                 </div>
-                <button type="submit">Login</button>
+                <button type="submit" className={styles.button}>Login</button>
             </form>
-            {message && <p>{message}</p>}
-            <p>
-                Don't have an account? <Link to="/register">Register here</Link>.
+            {message && <p className={styles.message}>{message}</p>}
+            <p className={styles.link}>
+                Don't have an account? <Link to="/register" className={styles.link}>Register here</Link>.
             </p>
         </div>
     );

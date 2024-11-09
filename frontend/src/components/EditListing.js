@@ -2,22 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuthContext } from './auth/AuthProvider';
-import '../styles/EditListing.css';
+import styles from '../styles/EditListing.module.css';
 
-/**
- * The `EditListing` component allows authenticated users with admin privileges
- * to edit details of a product listing. It fetches the product data based on the
- * provided ID from the URL parameters and populates a form where users can
- * update the name, description, price, quantity, and image of the product.
- *
- * On form submission, the updated product details are sent to the server.
- *
- * @constant
- * @component
- * @returns {JSX.Element} JSX representation of the edit listing form.
- *
- * @throws Will throw an error if the product fails to load or update.
- */
 const EditListing = () => {
     const { id } = useParams();
     const { user } = useAuthContext();
@@ -26,17 +12,15 @@ const EditListing = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // Form fields for editing product details
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [image, setImage] = useState(null);
-
+    const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
         if (user && !user.is_admin) {
-
             navigate('/');
         }
 
@@ -49,6 +33,7 @@ const EditListing = () => {
                 setDescription(data.description);
                 setPrice(data.price);
                 setQuantity(data.quantity);
+                setImagePreview(`http://localhost:8000${data.image_url}`);
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching product:', err);
@@ -64,7 +49,6 @@ const EditListing = () => {
         event.preventDefault();
 
         try {
-
             const formData = new FormData();
             formData.append('name', name);
             formData.append('description', description);
@@ -74,7 +58,6 @@ const EditListing = () => {
                 formData.append('image', image);
             }
 
-
             await axios.put(`http://localhost:8000/cards/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -82,7 +65,7 @@ const EditListing = () => {
                 },
             });
 
-            alert('Listing updated successfully');
+            alert('Listing updated successfully!');
             navigate('/admin');
 
         } catch (err) {
@@ -92,15 +75,27 @@ const EditListing = () => {
     };
 
     const handleImageChange = (event) => {
-        setImage(event.target.files[0]);
+        const file = event.target.files[0];
+        setImage(file);
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setImagePreview(null);
+        }
     };
 
-    if (loading) return <div>Loading product details...</div>;
-    if (error) return <div>{error}</div>;
+    if (loading) return <div className={styles.loading}>Loading product details...</div>;
+    if (error) return <div className={styles.error}>{error}</div>;
 
     return (
-        <div className="edit-listing-container">
+        <div className={styles.editListingContainer}>
             <h1>Edit Listing</h1>
+
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Name</label>
@@ -111,7 +106,6 @@ const EditListing = () => {
                         required
                     />
                 </div>
-
                 <div>
                     <label>Description</label>
                     <textarea
@@ -120,7 +114,6 @@ const EditListing = () => {
                         required
                     />
                 </div>
-
                 <div>
                     <label>Price</label>
                     <input
@@ -132,7 +125,6 @@ const EditListing = () => {
                         required
                     />
                 </div>
-
                 <div>
                     <label>Quantity</label>
                     <input
@@ -148,10 +140,16 @@ const EditListing = () => {
                     <label>Change Image</label>
                     <input
                         type="file"
-                        onChange={handleImageChange}
                         accept="image/*"
+                        onChange={handleImageChange}
                     />
                 </div>
+
+                {imagePreview && (
+                    <div className={styles.imagePreview}>
+                        <img src={imagePreview} alt="Preview" width="200px" height="200px" />
+                    </div>
+                )}
 
                 <button type="submit">Update Listing</button>
             </form>

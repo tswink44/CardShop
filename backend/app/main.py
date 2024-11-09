@@ -1,7 +1,10 @@
+import logging
+
 from fastapi import FastAPI, Depends, HTTPException, status, Form, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.responses import JSONResponse, FileResponse
 from sqlalchemy.orm import Session
 from typing import List
 import os
@@ -10,7 +13,8 @@ import os
 from backend.app import crud, schemas, models
 from backend.app.crud import authenticate_user
 from backend.app.database import get_db, initialize_database, connect_async_database, disconnect_async_database
-from backend.app.schemas import UserLogin, Token, CardCreate, UserRead
+from backend.app.models import User
+from backend.app.schemas import UserLogin, Token, CardCreate, UserRead, AvatarResponse
 from backend.app.utils import check_if_admin, create_access_token, create_refresh_token, verify_token, get_current_user
 
 # Initialize FastAPI app
@@ -25,10 +29,15 @@ app.add_middleware(
 )
 
 UPLOAD_DIR = "./uploads"
+AVATAR_DIR = "./avatars"
 
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 app.mount("/uploads", StaticFiles(directory="./uploads"), name="uploads")
+
+if not os.path.exists(AVATAR_DIR):
+    os.makedirs(AVATAR_DIR)
+app.mount("/avatars", StaticFiles(directory="./avatars"), name="avatars")
 
 # Allow CORS (Important for React frontend to communicate with the FastAPI backend)
 
@@ -309,6 +318,60 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=404, detail="User not found")
     return {"message": "User deleted successfully"}
+
+
+
+@app.post("/upload-avatar")
+async def upload_avatar(
+        file: UploadFile = File(...),
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    """
+    Upload and save the user's avatar.
+    """
+    logging.info("Upload avatar called")
+    # Ensure current_user is retrieved correctly
+    if not current_user:
+        logging.error("Failed to retrieve current user")
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    logging.info(f"User {current_user.id} authenticated")
+
+    # Limit file type to image
+    if file.content_type not in ["image/jpeg", "image/png"]:
+        raise HTTPException(status_code=400, detail="Invalid file type")
+    # Define a unique filepath for avatar
+    file_location = os.path.join(UPLOAD_DIR, f"user_{current_user.id}.png")
+    # Save the file
+    with open(file_location, "wb+") as file_object:
+        file_object.write(file.file.read())
+    # Update user record with avatar URL
+    current_user.avatar_url = f"/avatars/user_{current_user.id}.png"
+    db.commit()
+    db.refresh(current_user)
+
+    logging.info(f"Avatar uploaded for user {current_user.id}")
+    return {"avatar_url": current_user.avatar_url}
+
+
+# Route to serve the avatar
+@app.get("/users/{user_id}/avatar", response_class=FileResponse)
+async def get_user_avatar(user_id: int, db: Session = Depends(get_db)):
+    """
+    Return the avatar image for the given user.
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user or not user.avatar_url:
+        raise HTTPException(status_code=404, detail="User or avatar not found")
+
+    avatar_path = os.path.join(UPLOAD_DIR, f"user_{user_id}.png")
+    if os.path.exists(avatar_path):
+        return FileResponse(avatar_path)
+    else:
+        raise HTTPException(status_code=404, detail="Avatar file not found")
+
+
 
 # ---------------- Routes for User Authentication (Synchronous CRUD with SQLAlchemy ORM) ---------------- #
 @app.post("/login/", response_model=Token)

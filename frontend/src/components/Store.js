@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import '../styles/Store.css';
+import styles from '../styles/Store.module.css'; // Import CSS module
 
 /**
  * Store component that fetches and displays a list of products from the server.
@@ -53,11 +53,11 @@ const Store = () => {
     }
 
     return (
-        <div className="store">
+        <div className={styles.store}>
             <h1>Our Products</h1>
-            <div className="products-grid">
+            <div className={styles.productsGrid}>
                 {products.map((product) => (
-                    <div key={product.id} className="product">
+                    <div key={product.id} className={styles.product}>
                         <img src={`http://localhost:8000${product.image_url}`} alt={product.name} />
                         <h3>{product.name}</h3>
                         <p>${product.price}</p>

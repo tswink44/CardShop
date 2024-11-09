@@ -85,6 +85,7 @@ class UserBase(BaseModel):
     Attributes:
         username (str): A string representing the username of the user.
         email (EmailStr): A valid email address of the user.
+        avatar_url (Optional[str]): URL/path to the user’s avatar image; optional, defaults to None.
         is_active (Optional[bool]): Indicates if the user is currently active. Defaults to True.
         is_admin (bool): Indicates if the user has administrative privileges. Defaults to False.
 
@@ -93,6 +94,7 @@ class UserBase(BaseModel):
     """
     username: str
     email: EmailStr
+    avatar_url: Optional[str] = None
     is_active: Optional[bool] = True
     is_admin: bool = False
 
@@ -147,6 +149,9 @@ class UserLogin(BaseModel):
     """
     email: EmailStr
     password: str
+
+class AvatarResponse(BaseModel):
+    avatar_url: Optional[str]
 
 # Order Schema
 class OrderBase(BaseModel):

@@ -1,0 +1,46 @@
+/* CartPage.module.css */
+
+.cartPage {
+    padding: 20px;
+}
+
+.cartPage h1 {
+    margin-bottom: 20px;
+}
+
+.cartPage p {
+    margin: 10px 0;
+}
+
+.cartPage ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.cartPage li {
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.cartPage h2 {
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.cartPage button {
+    background-color: #45a049;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.cartPage button:hover {
+    background-color: #45a049;
+}

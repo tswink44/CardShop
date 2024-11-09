@@ -1,0 +1,158 @@
+/* HomePage.module.css */
+
+.hero {
+    background: url('https://i.redd.it/my-card-shop-is-finally-built-grand-opening-set-for-friday-v0-36qgogg43cnb1.jpg?width=4032&format=pjpg&auto=webp&s=13224f6126ea8b85243508d08eed62d1c87becf3') no-repeat center center;
+    background-size: cover;
+    color: white;
+    padding: 100px 0; /* Increased padding for more length */
+    text-align: center;
+    min-height: 600px; /* Set a minimum height */
+}
+
+.heroContent {
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.5); /* Optional: Add a background opacity to make text stand out */
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.ctaBtn {
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.ctaBtn:hover {
+    background-color: #45a049;
+}
+
+.featuredProducts {
+    padding: 50px 0;
+    text-align: center;
+}
+
+.productsGrid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.product {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    flex: 1 1 calc(25% - 20px);  /* Allow 4 items per row, accounting for gap */
+    max-width: calc(25% - 20px);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.product img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 5px;
+}
+.ProductBtn {
+    margin-top: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.ProductBtn:hover {
+    background-color: #45a049;
+}
+
+.viewAllBtn {
+    margin-top: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.viewAllBtn a {
+    color: white;
+    text-decoration: none;
+    display: block;
+}
+
+.viewAllBtn:hover {
+    background-color: #45a049;
+}
+
+.testimonials {
+    padding: 50px 0;
+    text-align: center;
+    background: #f2f2f2;
+}
+
+.testimonialsGrid {
+    display: grid; /* Use grid layout */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+    gap: 20px; /* Space between grid items */
+    justify-content: center;
+}
+
+.testimonial {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.testimonial img {
+    max-width: 80px;
+    border-radius: 50%; /* Circular image */
+    margin-bottom: 10px;
+}
+
+.aboutUs {
+    padding: 50px 0;
+    text-align: center;
+}
+
+.footer {
+    background: #333;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.footerLinks, .socialMedia, .newsletter {
+    margin: 10px 0;
+}
+
+.footer a {
+    color: white;
+    margin: 0 5px;
+}
+.SubScrBtn{
+    margin-top: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.SubScrBtn:hover {
+    background-color: #45a049;
+}

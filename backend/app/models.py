@@ -53,45 +53,26 @@ class Card(Base):
 
 class User(BaseModel):
     """
-        A SQLAlchemy model representing a user.
+    A SQLAlchemy model representing a User.
 
-        Table Name: users
-
-        Attributes:
-        -----------
-        username : Column
-            A unique indexed username for the user.
-
-        email : Column
-            A unique indexed email for the user.
-
-        hashed_password : Column
-            Stores the hashed password of the user.
-
-        is_active : Column
-            Boolean attribute denoting if the user is active or not. Default is True.
-
-        is_admin : Column
-            Boolean attribute indicating if the user has admin privileges. Default is False.
-
-        Relationships:
-        --------------
-        orders : relationship
-            A relationship to the orders placed by the user.
-
-        reviews : relationship
-            A relationship to the reviews authored by the user.
-
-        given_reviews : relationship
-            A relationship to the user reviews given by the user.
-
-        received_reviews : relationship
-            A relationship to the user reviews received by the user.
+    Attributes:
+        username: A unique indexed username for the user.
+        email: A unique indexed email for the user.
+        hashed_password: Stores the hashed password of the user.
+        avatar_url: URL/path to the user’s avatar image.
+        is_active: Boolean attribute denoting if the user is active or not. Default is True.
+        is_admin: Boolean attribute indicating if the user has admin privileges. Default is False.
+    Relationships:
+        orders: A relationship to the orders placed by the user.
+        reviews: A relationship to the reviews authored by the user.
+        given_reviews: A relationship to the user reviews given by the user.
+        received_reviews: A relationship to the user reviews received by the user.
     """
     __tablename__ = "users"
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
-    hashed_password = Column(String) #store hashed password
+    hashed_password = Column(String)  # store hashed password
+    avatar_url = Column(String, nullable=True)  # URL/path for the user’s avatar image
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
     # Relationships
@@ -99,8 +80,7 @@ class User(BaseModel):
     reviews = relationship("Review", back_populates="user")
     given_reviews = relationship("UserReview", foreign_keys="UserReview.reviewer_id", back_populates="reviewer")
     received_reviews = relationship("UserReview", foreign_keys="UserReview.reviewed_user_id",
-                                      back_populates="reviewed_user")
-
+                                    back_populates="reviewed_user")
 
 class Order(BaseModel):
     """

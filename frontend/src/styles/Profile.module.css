@@ -1,0 +1,72 @@
+/* Profile.module.css */
+
+.profile {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.profile__header {
+    margin-bottom: 20px;
+}
+
+.profile__avatarContainer {
+    margin-bottom: 15px;
+}
+
+.profile__avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    object-fit: cover;
+}
+
+.profile__fileInput {
+    margin-bottom: 10px;
+}
+
+.profile__name, .profile__email {
+    margin-bottom: 10px;
+}
+
+.profile__actions {
+    margin-top: 20px;
+}
+
+.profile__button {
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.profile__button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+.profile__error {
+    color: red;
+    margin-top: 10px;
+}
+
+.profile__adminSection {
+    margin-top: 20px;
+}
+
+.profile__adminLink {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}

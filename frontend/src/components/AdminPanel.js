@@ -1,39 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthContext } from './auth/AuthProvider';  // Assuming you have an AuthProvider
+import { useAuthContext } from './auth/AuthProvider';
+import styles from '../styles/AdminPanel.module.css';
 
-/**
- * AdminPanel is a React functional component tailored for administrators to manage product listings.
- * Key functionalities include:
- * - Fetching and displaying listings data from the server,
- * - Handling loading and error states during data fetching,
- * - Providing options to edit and delete individual listings.
- *
- * It utilizes several React hooks:
- * - `useAuthContext` to access the authenticated user information,
- * - `useState` to handle component state for listings, loading, and error,
- * - `useEffect` to fetch data when the component mounts,
- * - `useNavigate` to redirect non-admin users away from the admin panel.
- *
- * AdminPanel expects the authenticated user object to have an `is_admin` flag to conditionally
- * render the content. Listings are fetched from a specific API endpoint and displayed in a table.
- * Admins have the capability to edit or delete listings directly from the UI.
- */
 const AdminPanel = () => {
-    const { user } = useAuthContext();  // Get the authenticated user's info
-    const [listings, setListings] = useState([]);  // Store product listings
-    const [loading, setLoading] = useState(true);  // Loading state for fetching listings
-    const [error, setError] = useState(null);  // Error state for handling errors
+    const { user } = useAuthContext();
+    const [listings, setListings] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // Fetch listings when admin page loads
     useEffect(() => {
         if (user && user.is_admin) {
             axios.get('http://localhost:8000/store/cards')
                 .then((response) => {
-                    setListings(response.data);  // Set the listings in state
-                    setLoading(false);  // Stop loading spinner
+                    setListings(response.data);
+                    setLoading(false);
                 })
                 .catch((err) => {
                     console.error(err);
@@ -41,20 +24,18 @@ const AdminPanel = () => {
                     setLoading(false);
                 });
         } else {
-            navigate('/');  // Redirect if user is not an admin
+            navigate('/');
         }
     }, [user, navigate]);
 
-    // Handle listing deletion
     const deleteListing = (id) => {
         if (window.confirm('Are you sure you want to delete this listing?')) {
             axios.delete(`http://localhost:8000/cards/${id}`, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,  // JWT token for authorization
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             })
                 .then(() => {
-                    // Filter out the deleted listing from local state to update the UI
                     setListings(listings.filter((listing) => listing.id !== id));
                     alert('Listing deleted successfully!');
                 })
@@ -65,41 +46,45 @@ const AdminPanel = () => {
         }
     };
 
-    if (loading) return <div>Loading listings...</div>;
-    if (error) return <div>{error}</div>;
+    if (loading) return <div className={styles.loading}>Loading listings...</div>;
+    if (error) return <div className={styles.error}>{error}</div>;
 
     return (
-        <div>
-            <h1>Admin: Manage Listings</h1>
-            <table>
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {listings.map((listing) => (
-                    <tr key={listing.id}>
-                        <td>{listing.name}</td>
-                        <td>{listing.description}</td>
-                        <td>${listing.price}</td>
-                        <td>{listing.quantity}</td>
-                        <td>
-
-                            <Link to={`/edit-listing/${listing.id}`}>
-                                <button>Edit</button>
-                            </Link>
-
-                            <button onClick={() => deleteListing(listing.id)}>Delete</button>
-                        </td>
+        <div className={styles.adminPanel}>
+            <div className={styles.adminPanel__header}>
+                <h1>Admin: Manage Listings</h1>
+            </div>
+            <div className={styles.adminPanel__tableContainer}>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Actions</th>
                     </tr>
-                ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {listings.map((listing) => (
+                        <tr key={listing.id}>
+                            <td>{listing.name}</td>
+                            <td>{listing.description}</td>
+                            <td>${listing.price}</td>
+                            <td>{listing.quantity}</td>
+                            <td>
+                                <div className={styles.adminPanel__actions}>
+                                    <Link to={`/edit-listing/${listing.id}`}>
+                                        <button className={styles.editButton}>Edit</button>
+                                    </Link>
+                                    <button className={styles.deleteButton} onClick={() => deleteListing(listing.id)}>Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

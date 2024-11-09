@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import '../styles/CardDetail.css';
+import styles from '../styles/CardDetail.module.css';
 import { useCartContext } from './CartContext';
 
 /**
@@ -43,11 +43,11 @@ const CardDetail = () => {
     }, [id]);
 
     if (loading) {
-        return <div>Loading product details...</div>;
+        return <div className={styles.loading}>Loading product details...</div>;
     }
 
     if (error) {
-        return <div>{error}</div>;
+        return <div className={styles.error}>{error}</div>;
     }
 
 
@@ -64,7 +64,7 @@ const CardDetail = () => {
     };
 
     return (
-        <div className="card-detail">
+        <div className={styles.cardDetail}>
             <img src={`http://localhost:8000${product.image_url}`} alt={product.name} />
             <h1>{product.name}</h1>
             <p>{product.description}</p>

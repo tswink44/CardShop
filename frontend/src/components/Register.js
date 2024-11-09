@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Form.css';
+import styles from '../styles/Register.module.css'; // Import CSS module
 
 /**
  * Register component allows users to create an account by providing a username, email, and password.
@@ -52,24 +52,45 @@ function Register() {
     };
 
     return (
-        <div>
-            <h2>Register</h2>
+        <div className={styles.container}>
+            <h2 className={styles.title}>Register</h2>
             <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Username</label>
-                    <input type="text" aria-label="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                <div className={styles.formGroup}>
+                    <label className={styles.label}>Username</label>
+                    <input
+                        type="text"
+                        aria-label="username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                        className={styles.input}
+                    />
                 </div>
-                <div>
-                    <label>Email</label>
-                    <input type="email" aria-label="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <div className={styles.formGroup}>
+                    <label className={styles.label}>Email</label>
+                    <input
+                        type="email"
+                        aria-label="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className={styles.input}
+                    />
                 </div>
-                <div>
-                    <label>Password</label>
-                    <input type="password" aria-label="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <div className={styles.formGroup}>
+                    <label className={styles.label}>Password</label>
+                    <input
+                        type="password"
+                        aria-label="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        className={styles.input}
+                    />
                 </div>
-                <button type="submit" disabled={isSubmitting}>Register</button>
+                <button type="submit" disabled={isSubmitting} className={styles.button}>Register</button>
             </form>
-            {message && <p>{message}</p>}
+            {message && <p className={styles.message}>{message}</p>}
         </div>
     );
 }

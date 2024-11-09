@@ -96,22 +96,25 @@ def delete_card(db: Session, card_id: int) -> bool:
 
 # --------------------- CRUD Operations for User --------------------- #
 
-def create_user(db: Session, user: UserCreate) -> User:
+def create_user(db: Session, user: UserCreate, avatar_url: Optional[str] = None) -> User:
     """
     :param db: Database session object.
     :param user: UserCreate object containing user details.
+    :param avatar_url: Optional avatar URL for the user.
     :return: Created User object.
     """
     hashed_password = hash_password(user.password)  # Hash the password
     db_user = User(
         username=user.username,
         email=user.email,
-        hashed_password=hashed_password  # Store the hashed password
+        hashed_password=hashed_password,  # Store the hashed password
+        avatar_url=avatar_url  # Store the avatar URL if provided
     )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 def get_user(db: Session, user_id: int) -> Optional[User]:
     """
@@ -141,7 +144,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 10) -> List[User]:
     return db.query(User).offset(skip).limit(limit).all()
 
 
-def update_user(db: Session, user_id: int, user_data: UserCreate) -> Optional[User]:
+def update_user(db: Session, user_id: int, user_data: UserCreate, avatar_url: Optional[str] = None) -> Optional[User]:
     """
     :param db: The database session used for querying and updating the user.
     :type db: Session
@@ -152,6 +155,9 @@ def update_user(db: Session, user_id: int, user_data: UserCreate) -> Optional[Us
     :param user_data: The data used to update the user record.
     :type user_data: UserCreate
 
+    :param avatar_url: Optional new avatar URL for the user.
+    :type avatar_url: str
+
     :return: The updated user object, if the user exists; otherwise, None.
     :rtype: Optional[User]
     """
@@ -159,6 +165,10 @@ def update_user(db: Session, user_id: int, user_data: UserCreate) -> Optional[Us
     if db_user:
         for key, value in user_data.dict(exclude_unset=True).items():
             setattr(db_user, key, value)
+
+        if avatar_url:
+            db_user.avatar_url = avatar_url
+
         db.commit()
         db.refresh(db_user)
     return db_user

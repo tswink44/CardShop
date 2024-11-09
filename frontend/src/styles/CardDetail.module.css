@@ -1,0 +1,48 @@
+/* CardDetail.module.css */
+
+.cardDetail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.cardDetail img {
+    max-width: 100%;
+    height: auto;
+}
+
+.cardDetail h1 {
+    margin: 10px 0;
+    font-size: 2em;
+}
+
+.cardDetail p {
+    margin: 8px 0;
+}
+
+.cardDetail input[type="number"] {
+    width: 60px;
+    padding: 5px;
+    margin: 10px 0;
+}
+
+.cardDetail button {
+    background-color: #45a049;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.cardDetail button:disabled {
+    background-color: #e0e0e0;
+    cursor: not-allowed;
+}
+
+.cardDetail button:hover:not(:disabled) {
+    background-color: #ff80ab;
+}
