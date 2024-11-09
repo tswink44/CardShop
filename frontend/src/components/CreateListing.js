@@ -4,6 +4,31 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/Form.css';
 
 
+/**
+ * CreateListing is a React functional component that provides a form for users to create a new card listing.
+ * Users can input the name, description, price, quantity, and an image of the card. On form submission,
+ * the data is sent to the backend server via a POST request to create the listing. A success or failure message
+ * is displayed based on the response from the server.
+ *
+ * State Variables:
+ * - `name` (string): The name of the card.
+ * - `description` (string): A brief description of the card.
+ * - `price` (number): The price of the card.
+ * - `quantity` (number): The number of cards available.
+ * - `image` (File): The image file of the card.
+ * - `message` (string): The success or failure message to display.
+ *
+ * Hooks:
+ * - `useState`: Manages component state.
+ * - `useNavigate`: Used to navigate to a different page after successful form submission.
+ *
+ * Functions:
+ * - `handleSubmit`: Handles the form submission, sends the data to the server, and handles the response.
+ * - `handleImageChange`: Updates the state with the selected image file.
+ *
+ * Returns:
+ * - JSX to render the form and message.
+ */
 const CreateListing = () => {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
@@ -13,29 +38,25 @@ const CreateListing = () => {
     const [message, setMessage] = useState("");
     const navigate = useNavigate();
 
-    // Handle form submission
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        // Prepare form data
         const formData = new FormData();
         formData.append('name', name);
         formData.append('description', description);
         formData.append('price', price);
         formData.append('quantity', quantity);
-        formData.append('image', image);  // Append image file
+        formData.append('image', image);
 
         try {
-            // Post request to create card listing
             const response = await axios.post('http://localhost:8000/store/card/', formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',  // Important to set multipart/form-data
+                    'Content-Type': 'multipart/form-data',
                 }
             });
 
             setMessage("Card listed successfully!");
 
-            // Redirect to store page after creating the listing
             setTimeout(() => {
                 navigate('/store');
             }, 1500);
@@ -45,7 +66,6 @@ const CreateListing = () => {
         }
     };
 
-    // Handle image file selection
     const handleImageChange = (event) => {
         setImage(event.target.files[0]);  // Access the first selected file
     };

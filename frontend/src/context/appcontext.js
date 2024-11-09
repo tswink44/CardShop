@@ -1,40 +1,68 @@
 import React, { createContext, useState, useContext } from "react";
 
-// Create the context
+
+/**
+ * AppContext is a context object created using React's createContext method.
+ * It is used to provide and consume data that is accessible throughout the
+ * component tree without having to pass props down manually at every level.
+ * This is particularly useful for managing global state or common data that
+ * needs to be accessed by many components.
+ */
 const AppContext = createContext();
 
-// Create a provider component
-export const AppProvider = ({ children }) => {
-    const [cards, setCards] = useState([]); // For cards available in the shop
-    const [user, setUser] = useState(null); // For user details
-    const [orders, setOrders] = useState([]); // For the user's orders
 
-    // Add a card to the inventory
+/**
+ * AppProvider component is responsible for managing and providing the application's global
+ * state using React's Context API. It includes state and functionality related to user
+ * authentication, card management, and order management.
+ *
+ * @param {Object} props - The properties object.
+ * @param {React.ReactNode} props.children - The child components that consume the context.
+ *
+ * @returns {JSX.Element} The provider component with value attributes for state and functions.
+ *
+ * The context value provided includes:
+ * - `cards` (Array): The current list of cards.
+ * - `user` (Object|null): The current authenticated user, or null if no user is logged in.
+ * - `orders` (Array): The current list of orders.
+ * - `addCard` (function): Function to add a card to the list.
+ * - `removeCard` (function): Function to remove a card from the list by its ID.
+ * - `loginUser` (function): Function to log in a user.
+ * - `logoutUser` (function): Function to log out the current user.
+ * - `addOrder` (function): Function to add an order to the list.
+ * - `removeOrder` (function): Function to remove an order from the list by its ID.
+ */
+export const AppProvider = ({ children }) => {
+    const [cards, setCards] = useState([]);
+    const [user, setUser] = useState(null);
+    const [orders, setOrders] = useState([]);
+
+
     const addCard = (card) => {
         setCards((prevCards) => [...prevCards, card]);
     };
 
-    // Remove a card from the inventory
+
     const removeCard = (cardId) => {
         setCards((prevCards) => prevCards.filter((card) => card.id !== cardId));
     };
 
-    // Log in a user
+
     const loginUser = (userDetails) => {
         setUser(userDetails);
     };
 
-    // Log out a user
+
     const logoutUser = () => {
         setUser(null);
     };
 
-    // Add an order
+
     const addOrder = (order) => {
         setOrders((prevOrders) => [...prevOrders, order]);
     };
 
-    // Remove an order (if applicable)
+
     const removeOrder = (orderId) => {
         setOrders((prevOrders) => prevOrders.filter((order) => order.id !== orderId));
     };
@@ -58,7 +86,15 @@ export const AppProvider = ({ children }) => {
     );
 };
 
-// Custom hook to access context
+/**
+ * A custom hook that provides access to the application context.
+ *
+ * @function
+ * @returns {Object} The current context value from AppContext.
+ *
+ * This hook uses the React useContext hook to obtain and return the current value of the AppContext.
+ * It simplifies accessing the context in functional components.
+ */
 export const useAppContext = () => {
     return useContext(AppContext);
 };

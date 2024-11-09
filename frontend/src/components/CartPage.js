@@ -1,7 +1,15 @@
 import React from 'react';
-import { useCartContext } from './CartContext';  // Import the cart context
+import { useCartContext } from './CartContext';
 import '../styles/CartPage.css';
 
+/**
+ * CartPage component.
+ *
+ * Displays the cart items, total price, and provides functionality to remove items from the cart.
+ * If the cart is empty, it displays a message indicating the cart is empty.
+ *
+ * @returns {JSX.Element} The CartPage component.
+ */
 const CartPage = () => {
     const { cartItems, removeFromCart, calculateTotal } = useCartContext();  // Access cart context
 
@@ -27,7 +35,6 @@ const CartPage = () => {
                         ))}
                     </ul>
 
-                    {/* Display subtotal */}
                     <h3>Subtotal: ${calculateTotal()}</h3>
 
                     <button onClick={() => alert('Proceeding to checkout...')}>Checkout</button>

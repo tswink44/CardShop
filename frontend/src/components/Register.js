@@ -3,6 +3,13 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Form.css';
 
+/**
+ * Register component allows users to create an account by providing a username, email, and password.
+ * Handles user input, form submission, and displays messages based on the registration process outcome.
+ * Utilizes `useState` for managing form state and `useNavigate` for redirecting post-registration.
+ *
+ * @return {JSX.Element} The Register component.
+ */
 function Register() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -13,7 +20,7 @@ function Register() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        setIsSubmitting(true);  // Prevent multiple submissions while request is being processed
+        setIsSubmitting(true);
         try {
             const response = await axios.post('http://localhost:8000/users/', {
                 username,
@@ -24,7 +31,7 @@ function Register() {
             if (response.status === 201) {
                 setMessage("User registered successfully!");
                 setTimeout(() => {
-                    navigate('/login');  // Redirect user to login page after 1.5 seconds
+                    navigate('/login');
                 }, 1500);
             } else {
                 setMessage(`Registration failed: ${response.data.message}`);
@@ -40,7 +47,7 @@ function Register() {
                 setMessage("An unexpected error occurred during registration!");
             }
         } finally {
-            setIsSubmitting(false);  // Re-enable form submission
+            setIsSubmitting(false);
         }
     };
 

@@ -15,6 +15,13 @@ import CardDetail from "./components/CardDetail";
 import AdminPanel from "./components/AdminPanel";
 import EditListing from "./components/EditListing";
 
+/**
+ * The App component serves as the main entry point for the application.
+ * It sets up the token state and handles token persistence using the localStorage API.
+ * The component integrates various providers including CartProvider and AuthProvider
+ * and sets up routing for different application paths such as HomePage, Login, Register,
+ * Store, Profile, CreateListing, CartPage, CardDetail, AdminPanel, and EditListing.
+ */
 const App = () => {
     const [token, setToken] = useState(localStorage.getItem('token'));
 
@@ -28,7 +35,7 @@ const App = () => {
 
     return (
 
-        <CartProvider>  {/* Wrap the app with CartProvider for global access to the cart */}
+        <CartProvider>
             <Router>
                 <AuthProvider>
                 <NavBar token={token} setToken={setToken} />

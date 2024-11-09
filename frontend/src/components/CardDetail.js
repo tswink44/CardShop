@@ -2,8 +2,21 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import '../styles/CardDetail.css';
-import { useCartContext } from './CartContext';  // Import CartContext to add items to the cart
+import { useCartContext } from './CartContext';
 
+/**
+ * CardDetail component displays the details of a specific product and allows it to be added to the cart.
+ *
+ * @function
+ * @returns {JSX.Element} A component that renders the details of a product.
+ *
+ * @description
+ * This component fetches the product details based on the product ID obtained from the URL parameters. It displays the product image, name, description, price, and available stock. Users can specify the quantity to add to the cart and add the product to the cart, taking into account the current available stock.
+ *
+ * @throws {Error} If there's an error fetching the product, the error message is displayed.
+ * @example
+ * // Fetching a product with ID from URL params and displaying its details.
+ */
 const CardDetail = () => {
     const { id } = useParams();  // Get the card ID from the URL
     const [product, setProduct] = useState(null);  // Store the fetched product
@@ -37,7 +50,7 @@ const CardDetail = () => {
         return <div>{error}</div>;
     }
 
-    // Find out how many of this product are currently in the cart, if any
+
     const cartItem = cartItems.find(item => item.id === product.id);
     const availableStock = product.quantity - (cartItem ? cartItem.quantity : 0);
 
@@ -58,7 +71,7 @@ const CardDetail = () => {
             <p><strong>Price:</strong> ${product.price}</p>
             <p><strong>In Stock:</strong> {availableStock} items remaining</p>
 
-            {/* Allow the user to select how many to add */}
+
             <input
                 type="number"
                 min="1"
@@ -67,7 +80,7 @@ const CardDetail = () => {
                 onChange={(e) => setQuantityToAdd(parseInt(e.target.value))}
             />
 
-            {/* Add to Cart Button */}
+
             <button onClick={handleAddToCart} disabled={availableStock <= 0}>
                 Add to Cart
             </button>

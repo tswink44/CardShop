@@ -30,7 +30,9 @@ async_database = Database(DATABASE_URL)
 
 def initialize_database():
     """
-    This function is used to initialize the database by creating all necessary tables.
+    Initializes the database by creating all the tables defined in the models.
+
+    :return: None
     """
     # Import your models here before creating the tables
     import backend.app.models  # Ensure all models are imported
@@ -39,8 +41,14 @@ def initialize_database():
 # Dependency injection for FastAPI routes to get the database session
 def get_db():
     """
-    Dependency to get the SQLAlchemy session for routes.
-    This provides a session for the request which is automatically closed at the end.
+    Database dependency generator for FastAPI.
+
+    This function provides a session to the database, ensuring that the session
+    is properly closed after use. It uses Python's context management to yield
+    a database session and guarantees that the connection is closed properly
+    even if an error occurs.
+
+    :return: A database session from `SessionLocal()`
     """
     db = SessionLocal()
     try:
@@ -52,13 +60,17 @@ def get_db():
 # Optional Async startup and shutdown events for FastAPI (only if you're using async)
 async def connect_async_database():
     """
-    Connect to the async database on startup.
+    Asynchronously connects to a database using an async database connection.
+
+    :return: None
     """
     await async_database.connect()
 
 
 async def disconnect_async_database():
     """
-    Disconnect from the async database on shutdown.
+    Disconnects from the asynchronous database.
+
+    :return: None
     """
     await async_database.disconnect()

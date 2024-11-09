@@ -1,8 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import '../styles/Store.css';  // Import styles for the store page
+import '../styles/Store.css';
 
+/**
+ * Store component that fetches and displays a list of products from the server.
+ *
+ * This component handles the loading, error handling, and display of products
+ * in a grid format. It fetches product data from the given API endpoint and
+ * updates its state accordingly.
+ *
+ * State:
+ * - products: An array of product objects fetched from the API.
+ * - loading: A boolean that indicates whether the product data is currently being loaded.
+ * - error: A string that holds any error message encountered during the fetch operation.
+ *
+ * Effects:
+ * - useEffect: Fetches products from the API when the component mounts.
+ *
+ * Returns:
+ * - A loading message if the data is still being fetched.
+ * - An error message if there was a problem in fetching the data.
+ * - A grid of product cards if the data is successfully fetched.
+ *
+ */
 const Store = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -40,7 +61,7 @@ const Store = () => {
                         <img src={`http://localhost:8000${product.image_url}`} alt={product.name} />
                         <h3>{product.name}</h3>
                         <p>${product.price}</p>
-                        <Link to={`/card/${product.id}`}>View Product</Link> {/* Link to individual product details page */}
+                        <Link to={`/card/${product.id}`}>View Product</Link>
                     </div>
                 ))}
             </div>

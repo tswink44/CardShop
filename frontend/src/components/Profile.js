@@ -1,13 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuthContext } from './auth/AuthProvider';  // Import the Auth context
+import { useAuthContext } from './auth/AuthProvider';
 
+/**
+ * Profile is a functional component that displays the user's profile information.
+ * It fetches the user data using the useAuthContext hook.
+ * If the user data is not available, it displays a loading message.
+ * If the user is an admin, it displays additional admin-specific content.
+ */
 const Profile = () => {
-    const { user } = useAuthContext();  // Retrieve the authenticated user from context
+    const { user } = useAuthContext();
 
-    // Display a loading message if user data hasn't loaded yet
+
     if (!user) {
-        return <div>Loading user details...</div>;  // Show a better placeholder if necessary
+        return <div>Loading user details...</div>;
     }
 
     return (
@@ -16,7 +22,7 @@ const Profile = () => {
             <p>Username: {user.username}</p>
             <p>Email: {user.email}</p>
 
-            {/* Conditionally render an Admin Panel link if the user is an admin */}
+
             {user.is_admin && (
                 <div>
                     <h2>Admin Section</h2>

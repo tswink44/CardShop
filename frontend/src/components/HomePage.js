@@ -1,19 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../styles/HomePage.css';
-import {Link} from "react-router-dom";  // Ensure this path is correct
+import {Link} from "react-router-dom";
 
+/**
+ * Represents the main HomePage component for the application.
+ * This component fetches and displays featured products, customer testimonials,
+ * and other informational sections about the store.
+ *
+ * State Variables:
+ * - products: An array of product objects fetched from the API.
+ * - loading: A boolean flag indicating whether the product data is still being loaded.
+ * - error: A string containing the error message if the product data fails to load.
+ *
+ * Functionality:
+ * - useEffect hook to fetch product data from the API endpoint and handle loading and error states.
+ * - Displays a loading message while fetching data.
+ * - Displays an error message if the fetch operation fails.
+ * - Renders sections including Hero, Featured Products, Testimonials, About Us, and Footer.
+ *
+ * API Endpoint:
+ * - 'http://localhost:8000/store/cards': Endpoint to get featured products.
+ *
+ * Components:
+ * - Hero section: Brief introduction and a call-to-action button.
+ * - Featured Products section: Displays the first three products.
+ * - Testimonials section: Displays customer testimonials.
+ * - About Us section: Information about the store.
+ * - Footer section: Links to policies, social media, and a newsletter subscription form.
+ */
 const HomePage = () => {
-    const [products, setProducts] = useState([]);  // State to hold product listings
-    const [loading, setLoading] = useState(true);  // State for loading spinner
-    const [error, setError] = useState(null);  // State to handle errors
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Fetch product listings from the API
+
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const response = await axios.get('http://localhost:8000/store/cards');  // API endpoint to get featured products
-                setProducts(response.data);  // Store the fetched products in state
+                setProducts(response.data);
                 setLoading(false);
             } catch (err) {
                 setError("Failed to load products.");
@@ -24,19 +50,19 @@ const HomePage = () => {
         fetchProducts();
     }, []);
 
-    // Handle the loading state
+
     if (loading) {
         return <div>Loading featured products...</div>;
     }
 
-    // Handle the error state
+
     if (error) {
         return <div>{error}</div>;
     }
 
     return (
         <div>
-            {/* Hero Section */}
+
             <section className="hero">
                 <div className="hero-content">
                     <h1>Welcome to the Card Shop</h1>
@@ -45,7 +71,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* Featured Products Section */}
+
             <section className="featured-products">
                 <h2>Featured Products</h2>
                 <div className="products-grid">
@@ -61,11 +87,11 @@ const HomePage = () => {
                 <button className="view-all-btn"><Link to="Store">View All Products</Link></button>
             </section>
 
-            {/* Testimonials Section */}
+
             <section className="testimonials">
                 <h2>What Our Customers Say</h2>
                 <div className="testimonials-grid">
-                    {/* Make sure to have customer images available */}
+
                     <div className="testimonial">
                         <img src="customer1.jpg" alt="Customer 1" />
                         <p>"I love the products! They arrived on time and exceeded my expectations."</p>
@@ -80,14 +106,14 @@ const HomePage = () => {
                 <button className="view-all-btn">Read More Reviews</button>
             </section>
 
-            {/* About Us Section */}
+
             <section className="about-us">
                 <h2>About Us</h2>
                 <p>At YourStore, we're committed to providing the best products at the best prices. Our mission is to make shopping enjoyable and affordable for everyone.</p>
                 <button className="cta-btn">Learn More</button>
             </section>
 
-            {/* Footer Section */}
+
             <footer className="footer">
                 <div className="footer-links">
                     <a href="#">Terms of Service</a>

@@ -14,6 +14,11 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 # Override get_db to use the test session
 def override_get_db():
+    """
+    Creates a database session for testing purposes and ensures the session is properly closed after use.
+
+    :return: A generator that yields a database session.
+    """
     try:
         db = TestingSessionLocal()
         yield db
@@ -29,6 +34,11 @@ client = TestClient(app)
 # Set up and tear down the database between tests
 @pytest.fixture(scope="module")
 def setup_database():
+    """
+    Setup and teardown actions for database used in tests.
+
+    :return: None
+    """
     # Create the database tables before the test suite runs
     Base.metadata.create_all(bind=engine)
     yield
@@ -39,7 +49,8 @@ def setup_database():
 
 def test_create_user(setup_database):
     """
-    Test that a new user can be created.
+    :param setup_database: Fixture to set up the database before the test case runs
+    :return: None
     """
     response = client.post(
         "/users/",
@@ -54,7 +65,8 @@ def test_create_user(setup_database):
 
 def test_get_users(setup_database):
     """
-    Test getting the list of users.
+    :param setup_database: Fixture that sets up the database environment for the test.
+    :return: None
     """
     response = client.get("/users/")
     assert response.status_code == 200
@@ -64,7 +76,8 @@ def test_get_users(setup_database):
 
 def test_get_user(setup_database):
     """
-    Test retrieving a user by ID.
+    :param setup_database: Fixture that sets up the database before running the test.
+    :return: None
     """
     # Create a new user first (or ensure one exists)
     response = client.post(
@@ -84,7 +97,8 @@ def test_get_user(setup_database):
 
 def test_update_user(setup_database):
     """
-    Test updating an existing user.
+    :param setup_database: Fixture for setting up the test database.
+    :return: None
     """
     # Create a new user first
     response = client.post(
@@ -106,7 +120,8 @@ def test_update_user(setup_database):
 
 def test_delete_user(setup_database):
     """
-    Test deleting an existing user.
+    :param setup_database: Fixture that sets up the database for testing.
+    :return: None
     """
     # Create a new user to delete
     response = client.post(

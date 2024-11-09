@@ -3,6 +3,23 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from './auth/AuthProvider';  // Assuming you have an AuthProvider
 
+/**
+ * AdminPanel is a React functional component tailored for administrators to manage product listings.
+ * Key functionalities include:
+ * - Fetching and displaying listings data from the server,
+ * - Handling loading and error states during data fetching,
+ * - Providing options to edit and delete individual listings.
+ *
+ * It utilizes several React hooks:
+ * - `useAuthContext` to access the authenticated user information,
+ * - `useState` to handle component state for listings, loading, and error,
+ * - `useEffect` to fetch data when the component mounts,
+ * - `useNavigate` to redirect non-admin users away from the admin panel.
+ *
+ * AdminPanel expects the authenticated user object to have an `is_admin` flag to conditionally
+ * render the content. Listings are fetched from a specific API endpoint and displayed in a table.
+ * Admins have the capability to edit or delete listings directly from the UI.
+ */
 const AdminPanel = () => {
     const { user } = useAuthContext();  // Get the authenticated user's info
     const [listings, setListings] = useState([]);  // Store product listings
@@ -72,11 +89,11 @@ const AdminPanel = () => {
                         <td>${listing.price}</td>
                         <td>{listing.quantity}</td>
                         <td>
-                            {/* Link to Edit Page */}
+
                             <Link to={`/edit-listing/${listing.id}`}>
                                 <button>Edit</button>
                             </Link>
-                            {/* Delete Button */}
+
                             <button onClick={() => deleteListing(listing.id)}>Delete</button>
                         </td>
                     </tr>
