@@ -3,13 +3,26 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles/CreateListing.module.css';
 
+/**
+ * CreateListing is a functional React component that renders a form allowing
+ * users to create a new product listing. The form includes fields for the product's
+ * name, description, price, quantity, and an image upload feature. Upon submission,
+ * the form data is sent to the server to create a new product listing.
+ *
+ * Internal state is managed using the useState hook for each form field and image
+ * preview functionality. The useNavigate hook is used for redirecting after a
+ * successful listing creation.
+ *
+ * @component
+ * @returns {JSX.Element} A form for creating a new product listing.
+ */
 const CreateListing = () => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState(0);
     const [quantity, setQuantity] = useState(1);
-    const [image, setImage] = useState(null);  // Image file state
-    const [imagePreview, setImagePreview] = useState(null);  // For image preview
+    const [image, setImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
@@ -22,7 +35,7 @@ const CreateListing = () => {
         formData.append('price', price);
         formData.append('quantity', quantity);
         if (image) {
-            formData.append('image', image);  // Add image if exists
+            formData.append('image', image);
         }
 
         try {
@@ -34,7 +47,7 @@ const CreateListing = () => {
 
             setMessage('Card listed successfully!');
 
-            // Redirect to store page after creating the listing
+
             setTimeout(() => {
                 navigate('/store');
             }, 1500);
@@ -47,16 +60,16 @@ const CreateListing = () => {
     // Handle image upload and preview
     const handleImageChange = (event) => {
         const file = event.target.files[0];
-        setImage(file);  // Set the selected image file
+        setImage(file);
 
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImagePreview(reader.result);  // Set preview URL once image is read
+                setImagePreview(reader.result);
             };
-            reader.readAsDataURL(file);  // Read the file data
+            reader.readAsDataURL(file);
         } else {
-            setImagePreview(null);  // Clear the preview if no image selected
+            setImagePreview(null);
         }
     };
 
@@ -102,7 +115,6 @@ const CreateListing = () => {
                     />
                 </div>
 
-                {/* Image Upload with Preview */}
                 <div>
                     <label>Image</label>
                     <input
@@ -112,7 +124,6 @@ const CreateListing = () => {
                     />
                 </div>
 
-                {/* Image Preview */}
                 {imagePreview && (
                     <div className={styles.imagePreview}>
                         <img src={imagePreview} alt="Preview" width="200px" height="200px" />

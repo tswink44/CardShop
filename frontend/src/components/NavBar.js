@@ -1,24 +1,45 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCartContext } from './CartContext';
-import styles from '../styles/NavBar.module.css'; // Import CSS module
+import { useAuthContext } from './auth/AuthProvider';
+import styles from '../styles/NavBar.module.css';
 
 /**
- * NavBar component that provides navigation links and user authentication controls.
+ * NavBar component that provides navigation links for the application.
  *
- * @param {Object} props - Component properties.
- * @param {string|null} props.token - Authentication token to determine the user's login status.
- * @param {function} props.setToken - Callback to update the authentication token state.
- * @returns {JSX.Element} The rendered NavBar component.
+ * @param {Object} props - Props object.
+ * @param {string|null} props.token - Authentication token.
+ * @param {Function} props.setToken - Function to update the authentication token.
+ *
+ * @returns {JSX.Element} Rendered NavBar component.
+ *
+ * This component includes links to the Home, Store, Profile, Login, and Cart pages.
+ * If a user is authenticated (i.e., a token exists), the Profile and Logout options
+ * are displayed. Otherwise, the Login option is shown. It also displays the number
+ * of items in the cart.
+ *
+ * The handleLogout function clears the user session, removes the token from storage,
+ * and navigates the user to the login page.
  */
 const NavBar = ({ token, setToken }) => {
     const { cartItems } = useCartContext();
+    const { setUser } = useAuthContext();
     const navigate = useNavigate();
 
-    // Handler for Logout
+
     const handleLogout = () => {
+
         setToken(null);
+        setUser(null);
         localStorage.removeItem('token');
+        sessionStorage.clear();
+        // Remove any cookies if needed
+        document.cookie.split(";").forEach(c => {
+            document.cookie = c.trim().startsWith("token=") ? c.trim().split("=")[0] + "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/" : "";
+        });
+
+
+
         navigate('/login');
     };
 

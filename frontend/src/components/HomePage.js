@@ -4,7 +4,31 @@ import { Link } from "react-router-dom";
 import styles from '../styles/HomePage.module.css';
 
 /**
- * Represents the main HomePage component for the application.
+ * Represents the HomePage component.
+ *
+ * This component fetches and displays featured products from an API endpoint,
+ * shows a hero section with a welcome message, displays customer testimonials,
+ * and provides information about the store.
+ *
+ * State Variables:
+ * - `products`: An array containing featured product data.
+ * - `loading`: A boolean flag indicating loading status.
+ * - `error`: A string containing any error messages related to fetching products.
+ *
+ * API Call:
+ * - Fetches products from the endpoint 'http://localhost:8000/store/cards'.
+ *
+ * Sections:
+ * - Hero: A welcome message with a call-to-action button.
+ * - Featured Products: Displays a grid of featured products with images, names, prices, and links to individual product pages.
+ * - Testimonials: Shows customer testimonials with images and quotes.
+ * - About Us: Information about the store with a call-to-action button.
+ * - Footer: Contains links to various pages, social media links, and a newsletter subscription input.
+ *
+ * Usage of useEffect Hook:
+ * - Fetches product data from the API when the component mounts.
+ *
+ * Returns appropriate JSX based on loading and error state.
  */
 const HomePage = () => {
     const [products, setProducts] = useState([]);
@@ -52,11 +76,13 @@ const HomePage = () => {
                             <img src={`http://localhost:8000${product.image_url}`} alt={product.name} />
                             <h3>{product.name}</h3>
                             <p>${product.price}</p>
-                            <button className={styles.ProductBtn}>View Product</button>
+                            <Link to={`/card/${product.id}`}>
+                                <button className={styles.ProductBtn}>View Product</button>
+                            </Link>
                         </div>
                     ))}
                 </div>
-                <button className={styles.viewAllBtn}><Link to="Store">View All Products</Link></button>
+                <button className={styles.viewAllBtn}><Link to="/store">View All Products</Link></button>
             </section>
 
             <section className={styles.testimonials}>

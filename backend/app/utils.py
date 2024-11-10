@@ -11,7 +11,6 @@ from backend.app.database import get_db
 from backend.app.schemas import UserRead
 
 load_dotenv()
-# Initialize the CryptContext for bcrypt
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
@@ -31,8 +30,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 SECRET_KEY = os.getenv("SECRET_KEY","superdupersecret")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 15  # 15 minutes for access token expiry
-REFRESH_TOKEN_EXPIRE_DAYS = 7  # 7 days for refresh token expiry
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 
 if not SECRET_KEY:
@@ -84,7 +83,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         detail="Invalid credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    payload = verify_token(token,unauthorized_exception)  # Assume `verify_token` decodes the JWT and verifies it.
+    payload = verify_token(token,unauthorized_exception)
 
     user_email = payload.get("sub")
     if user_email is None:
@@ -94,7 +93,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    user = crud.get_user_by_email(db, email=user_email)  # Fetch user from the database based on email
+    user = crud.get_user_by_email(db, email=user_email)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
 

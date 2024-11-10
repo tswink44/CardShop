@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from backend.app.database import Base
 
-# Constants for commonly used fields
 COMMON_FIELDS = {
     'id': Column(Integer, primary_key=True, index=True),
     'created_at': Column(DateTime, default=datetime.utcnow),

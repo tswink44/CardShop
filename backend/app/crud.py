@@ -103,12 +103,12 @@ def create_user(db: Session, user: UserCreate, avatar_url: Optional[str] = None)
     :param avatar_url: Optional avatar URL for the user.
     :return: Created User object.
     """
-    hashed_password = hash_password(user.password)  # Hash the password
+    hashed_password = hash_password(user.password)
     db_user = User(
         username=user.username,
         email=user.email,
-        hashed_password=hashed_password,  # Store the hashed password
-        avatar_url=avatar_url  # Store the avatar URL if provided
+        hashed_password=hashed_password,
+        avatar_url=avatar_url
     )
     db.add(db_user)
     db.commit()

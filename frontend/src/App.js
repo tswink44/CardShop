@@ -7,7 +7,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Store from './components/Store';
 import Profile from './components/Profile';
-import CartPage from './components/CartPage';  // Import CartPage
+import CartPage from './components/CartPage';
 import { AuthProvider } from './components/auth/AuthProvider';
 import { CartProvider } from './components/CartContext';
 import CreateListing from "./components/CreateListing";
@@ -35,9 +35,9 @@ const App = () => {
 
     return (
 
-        <CartProvider>
             <Router>
                 <AuthProvider>
+                    <CartProvider>
                 <NavBar token={token} setToken={setToken} />
                 <div style={{ padding: '20px' }}>
                     <Routes>
@@ -54,9 +54,10 @@ const App = () => {
 
                     </Routes>
                 </div>
-               </AuthProvider>       
+                </CartProvider>
+               </AuthProvider>
             </Router>
-        </CartProvider>
+
 
     );
 };

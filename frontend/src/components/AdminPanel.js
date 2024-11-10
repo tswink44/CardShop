@@ -4,6 +4,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthContext } from './auth/AuthProvider';
 import styles from '../styles/AdminPanel.module.css';
 
+/**
+ * AdminPanel is a React component that provides an interface for admin users to manage store listings.
+ * It allows admins to view, edit, and delete product listings from the store.
+ * The component retrieves the listings from the backend API and displays them in a table format.
+ * Admin users can manage these listings through editing or deleting options.
+ *
+ * The component contains internal state to handle listings data, loading status, and error messages.
+ * It leverages the useAuthContext hook to check if the user is authenticated and has admin privileges.
+ * If the user is not an admin, they are redirected to the home page.
+ */
 const AdminPanel = () => {
     const { user } = useAuthContext();
     const [listings, setListings] = useState([]);

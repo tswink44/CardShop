@@ -18,15 +18,15 @@ import { useCartContext } from './CartContext';
  * // Fetching a product with ID from URL params and displaying its details.
  */
 const CardDetail = () => {
-    const { id } = useParams();  // Get the card ID from the URL
-    const [product, setProduct] = useState(null);  // Store the fetched product
-    const [loading, setLoading] = useState(true);  // Loading state
-    const [error, setError] = useState(null);  // Error state
-    const [quantityToAdd, setQuantityToAdd] = useState(1);  // The quantity to add to the cart
+    const { id } = useParams();
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [quantityToAdd, setQuantityToAdd] = useState(1);
 
-    const { addToCart, cartItems } = useCartContext();  // Using the CartContext
+    const { addToCart, cartItems } = useCartContext();
 
-    // Fetch the card (product) based on its ID
+
     useEffect(() => {
         const fetchProduct = async () => {
             try {
@@ -75,7 +75,7 @@ const CardDetail = () => {
             <input
                 type="number"
                 min="1"
-                max={availableStock}  // Do not allow users to choose more than what's available
+                max={availableStock}
                 value={quantityToAdd}
                 onChange={(e) => setQuantityToAdd(parseInt(e.target.value))}
             />

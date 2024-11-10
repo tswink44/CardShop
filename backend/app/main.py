@@ -392,27 +392,23 @@ def login(user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session =
             detail="Invalid credentials"
         )
 
-    # Generate both access and refresh tokens
     access_token = create_access_token(data={"sub": authenticated_user.email})
     refresh_token = create_refresh_token(data={"sub": authenticated_user.email})
 
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
-# Route to refresh token
 @app.post("/token/refresh", response_model=Token)
 def refresh_token(refresh_token: str):
     """
     :param refresh_token: The refresh token used to obtain a new access token.
     :return: A dictionary containing the new access token, the same refresh token, and the token type (bearer).
     """
-    # Verify the refresh token
     payload = verify_token(refresh_token, invalid_token_exception)
 
     if not payload:
         raise invalid_token_exception
 
-    # Issue a new access token
     new_access_token = create_access_token(data={"sub": payload["sub"]})
 
     return {"access_token": new_access_token, "refresh_token": refresh_token, "token_type": "bearer"}

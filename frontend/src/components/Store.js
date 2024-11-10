@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import styles from '../styles/Store.module.css'; // Import CSS module
+import styles from '../styles/Store.module.css';
 
 /**
  * Store component that fetches and displays a list of products from the server.

@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Set up Axios to connect to FastAPI backend
 /**
  * @constant {AxiosInstance} axiosInstance
  * @description

@@ -17,7 +17,7 @@ const Profile = () => {
         if (!user) {
             const intervalId = setInterval(() => {
                 window.location.reload();
-            }, 5000);
+            }, 1000);
             return () => clearInterval(intervalId);
         } else {
             // const fetchAvatar = async () => {

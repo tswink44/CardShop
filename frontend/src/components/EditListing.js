@@ -4,6 +4,14 @@ import axios from 'axios';
 import { useAuthContext } from './auth/AuthProvider';
 import styles from '../styles/EditListing.module.css';
 
+/**
+ * EditListing is a React component that allows an admin user to edit the details of a product listing.
+ * It fetches the product data from an API and pre-fills the form fields with the existing product information.
+ * The component includes form handling for updating product details such as name, description, price, quantity, and image.
+ *
+ * @constant {Object} EditListing - The React component.
+ * @returns {JSX.Element} JSX rendering the EditListing form.
+ */
 const EditListing = () => {
     const { id } = useParams();
     const { user } = useAuthContext();

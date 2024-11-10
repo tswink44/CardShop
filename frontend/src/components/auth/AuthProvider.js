@@ -48,15 +48,15 @@ export const useAuthContext = () => useContext(AuthContext);
  * @returns {ReactNode} The children components wrapped within the AuthContext.Provider.
  */
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);  // User state
-    const [loading, setLoading] = useState(true);  // Loading state
-    const [error, setError] = useState(null);  // Error state
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
     // Fetch the user data from the backend
     const fetchUser = async () => {
         try {
-            const token = localStorage.getItem('token');  // Assuming token is stored in localStorage
+            const token = localStorage.getItem('token');
 
             if (!token) {
                 throw new Error('No token found');
@@ -64,26 +64,26 @@ export const AuthProvider = ({ children }) => {
 
             const response = await axios.get('http://localhost:8000/me', {
                 headers: {
-                    Authorization: `Bearer ${token}`,  // Attach the JWT token
+                    Authorization: `Bearer ${token}`,
                 },
             });
 
-            setUser(response.data);  // Set the user data
+            setUser(response.data);
             setLoading(false);
         } catch (err) {
             console.error(err);
-            localStorage.removeItem('token');  // Clear token if invalid
-            setLoading(false);  // Set loading to false, but leave user as `null`
-            navigate('/login');  // Redirect to login if user is null or unauthorized
+            localStorage.removeItem('token');
+            setLoading(false);
+
         }
     };
 
-    // Fetch user when the component is mounted
+
     useEffect(() => {
         fetchUser();
     }, []);
 
-    // Return null while loading
+
     if (loading) {
         return <div>Loading...</div>;
     }

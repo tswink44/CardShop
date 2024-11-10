@@ -3,12 +3,19 @@ import { useCartContext } from './CartContext';
 import styles from '../styles/CartPage.module.css';
 
 /**
- * CartPage component.
+ * @function CartPage
  *
- * Displays the cart items, total price, and provides functionality to remove items from the cart.
- * If the cart is empty, it displays a message indicating the cart is empty.
+ * Represents a component for displaying the user's shopping cart.
  *
- * @returns {JSX.Element} The CartPage component.
+ * Utilizes the cart context to render the current items in the cart,
+ * display their details (such as name, price, quantity, and total price),
+ * and provide functionality to remove items from the cart.
+ *
+ * Displays a message if the cart is empty.
+ *
+ * Also includes a subtotal calculation and a simulated checkout button.
+ *
+ * @returns {JSX.Element} The rendered cart page component.
  */
 const CartPage = () => {
     const { cartItems, removeFromCart, calculateTotal } = useCartContext();  // Access cart context
@@ -21,16 +28,20 @@ const CartPage = () => {
                 <p>Your cart is empty.</p>
             ) : (
                 <div>
-                    <ul>
+                    <ul className={styles.cartList}>
                         {cartItems.map((item) => (
-                            <li key={item.id}>
-                                <h2>{item.name}</h2>
-                                <p>Price per item: ${item.price}</p>
-                                <p>Quantity: {item.quantity} item(s)</p>
-                                <p>Total for this item: ${(item.price * item.quantity).toFixed(2)}</p>  {/* Total for this item */}
-                                <button onClick={() => removeFromCart(item.id)}>
-                                    Remove from Cart
-                                </button>
+                            <li key={item.id} className={styles.cartListItem}>
+                                <img src={`http://localhost:8000${item.image_url}`} alt={item.name}/> {/* Display image */}
+                                <div className={styles.cartItemDetails}>
+                                    <h2>{item.name}</h2>
+                                    <p>Price per item: ${item.price}</p>
+                                    <p>Quantity: {item.quantity} item(s)</p>
+                                    <p>Total for this item:
+                                        ${(item.price * item.quantity).toFixed(2)}</p>  {/* Total for this item */}
+                                    <button onClick={() => removeFromCart(item.id)}>
+                                        Remove from Cart
+                                    </button>
+                                </div>
                             </li>
                         ))}
                     </ul>
