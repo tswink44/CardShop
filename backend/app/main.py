@@ -321,55 +321,55 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 
 
-@app.post("/upload-avatar")
-async def upload_avatar(
-        file: UploadFile = File(...),
-        db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user)
-):
-    """
-    Upload and save the user's avatar.
-    """
-    logging.info("Upload avatar called")
-    # Ensure current_user is retrieved correctly
-    if not current_user:
-        logging.error("Failed to retrieve current user")
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    logging.info(f"User {current_user.id} authenticated")
-
-    # Limit file type to image
-    if file.content_type not in ["image/jpeg", "image/png"]:
-        raise HTTPException(status_code=400, detail="Invalid file type")
-    # Define a unique filepath for avatar
-    file_location = os.path.join(UPLOAD_DIR, f"user_{current_user.id}.png")
-    # Save the file
-    with open(file_location, "wb+") as file_object:
-        file_object.write(file.file.read())
-    # Update user record with avatar URL
-    current_user.avatar_url = f"/avatars/user_{current_user.id}.png"
-    db.commit()
-    db.refresh(current_user)
-
-    logging.info(f"Avatar uploaded for user {current_user.id}")
-    return {"avatar_url": current_user.avatar_url}
-
-
-# Route to serve the avatar
-@app.get("/users/{user_id}/avatar", response_class=FileResponse)
-async def get_user_avatar(user_id: int, db: Session = Depends(get_db)):
-    """
-    Return the avatar image for the given user.
-    """
-    user = db.query(User).filter(User.id == user_id).first()
-
-    if not user or not user.avatar_url:
-        raise HTTPException(status_code=404, detail="User or avatar not found")
-
-    avatar_path = os.path.join(UPLOAD_DIR, f"user_{user_id}.png")
-    if os.path.exists(avatar_path):
-        return FileResponse(avatar_path)
-    else:
-        raise HTTPException(status_code=404, detail="Avatar file not found")
+# @app.post("/upload-avatar")
+# async def upload_avatar(
+#         file: UploadFile = File(...),
+#         db: Session = Depends(get_db),
+#         current_user: User = Depends(get_current_user)
+# ):
+#     """
+#     Upload and save the user's avatar.
+#     """
+#     logging.info("Upload avatar called")
+#     # Ensure current_user is retrieved correctly
+#     if not current_user:
+#         logging.error("Failed to retrieve current user")
+#         raise HTTPException(status_code=401, detail="Not authenticated")
+#     logging.info(f"User {current_user.id} authenticated")
+#
+#     # Limit file type to image
+#     if file.content_type not in ["image/jpeg", "image/png"]:
+#         raise HTTPException(status_code=400, detail="Invalid file type")
+#     # Define a unique filepath for avatar
+#     file_location = os.path.join(UPLOAD_DIR, f"user_{current_user.id}.png")
+#     # Save the file
+#     with open(file_location, "wb+") as file_object:
+#         file_object.write(file.file.read())
+#     # Update user record with avatar URL
+#     current_user.avatar_url = f"/avatars/user_{current_user.id}.png"
+#     db.commit()
+#     db.refresh(current_user)
+#
+#     logging.info(f"Avatar uploaded for user {current_user.id}")
+#     return {"avatar_url": current_user.avatar_url}
+#
+#
+# # Route to serve the avatar
+# @app.get("/users/{user_id}/avatar", response_class=FileResponse)
+# async def get_user_avatar(user_id: int, db: Session = Depends(get_db)):
+#     """
+#     Return the avatar image for the given user.
+#     """
+#     user = db.query(User).filter(User.id == user_id).first()
+#
+#     if not user or not user.avatar_url:
+#         raise HTTPException(status_code=404, detail="User or avatar not found")
+#
+#     avatar_path = os.path.join(UPLOAD_DIR, f"user_{user_id}.png")
+#     if os.path.exists(avatar_path):
+#         return FileResponse(avatar_path)
+#     else:
+#         raise HTTPException(status_code=404, detail="Avatar file not found")
 
 
 
