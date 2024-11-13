@@ -34,3 +34,5 @@ CardShop is a simulated website for trading cards. It aims to provide its users 
 - Implement more robust simulated checkout
 
 - Allow submission of customer user testimonials
+
+- Migrate from a sqlite DB to a persistent PostgreSQL DB
